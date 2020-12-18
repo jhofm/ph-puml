@@ -1,0 +1,36 @@
+#!/usr/bin/env php
+<?php
+
+require __DIR__ . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+
+use Composer\InstalledVersions;
+use Symfony\Component\Config\FileLocator;
+use Symfony\Component\Console\Application;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
+use Symfony\Component\DependencyInjection\Dumper\PhpDumper;
+use Symfony\Component\DependencyInjection\Loader\YamlFileLoader;
+
+// build & cache DI container
+$container = (function (): ProjectServiceContainer {
+    $package = InstalledVersions::getRootPackage();
+    $cachePath = dirname(__DIR__) . DIRECTORY_SEPARATOR . 'var' . DIRECTORY_SEPARATOR . 'cache' . DIRECTORY_SEPARATOR . 'container_' . $package['reference'] . '.php';
+    if (!file_exists($cachePath)) {
+        $containerBuilder = new ContainerBuilder();
+        $loader = new YamlFileLoader(
+            $containerBuilder,
+            new FileLocator(
+                dirname(__DIR__) . DIRECTORY_SEPARATOR . 'config'));
+        $loader->load('services.yml');
+        $containerBuilder->compile();
+        file_put_contents($cachePath, (new PhpDumper($containerBuilder))->dump());
+    }
+    require_once $cachePath;
+    return new ProjectServiceContainer();
+})();
+
+// add command name to input arguments
+$args = array_slice($_SERVER['argv'], 1);
+array_unshift($args, $_SERVER['argv'][0], 'ph-puml');
+$_SERVER['argv'] = $args;
+
+$container->get(Application::class)->run();

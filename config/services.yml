@@ -1,0 +1,21 @@
+services:
+  _defaults:
+    autowire: true
+
+  Symfony\Component\Console\Application:
+    public: true
+    calls:
+      - addCommands: [['@Jhofm\PhPuml\Command\ClassDiagramCommand']]
+
+  PhpParser\Parser:
+    factory: ['@PhpParser\ParserFactory', 'create']
+    arguments:
+      - !php/const PhpParser\ParserFactory::PREFER_PHP7
+  PhpParser\ParserFactory:
+  PhpParser\NodeFinder:
+  PhpParser\NodeTraverser:
+    calls:
+      - addVisitor: ['@Jhofm\PhPuml\NodeVisitor\NameResolver']
+
+  Jhofm\PhPuml\:
+    resource: '../src/*'
