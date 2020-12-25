@@ -74,25 +74,16 @@ The resulting PlantUML code is written to the console's standard output and can 
 $ ph-puml > class.puml
 ```
 
-If the target path is a directory, PhPuml will recursively find files with the file extension ```.php``` there.
-Subfolders called `vendor` are ignored by default.
+If the target path is a directory, PhPuml will determine the code files to analyze using a set of inclusion and exclusion rules.
+By default, files in the directory tree with the file extension `.php` are included, as long as none of their parent folders are called `vendor`.
  
-If you want to include them, disable the exclusion regex like this:
-
+You can override the filter rules with command line options. All rules are regular expressions. You can use several at the same time.
+For example the following command will NOT skip files from `vendor` folders, and analyze files in the `includes` folder with the file extension `.inc` as well.  
 ```console
-$ ph-puml --exclude ""
+$ ph-puml --exclude --include "/\.php$/" --include "/^includes/.*\.inc$/"
 ```
 
-or this: 
-```console
-$ ph-puml --exclude
-```
-
-You can also define multiple exclusions yourself. Currently only regular expressions are supported.
-   
-```console
-$ ph-puml --exclude "~^foo~" --exclude "~bar$~"
-```   
+The command will fail when attempting to parse files that do not contain valid PHP code.
    
 PhPuml uses `symfony/command`, so a help page including all supported arguments and options is available.   
 
@@ -105,8 +96,7 @@ $ ph-puml -h
 * Auto generated class diagrams will probably never exactly meet your needs, but provide a starting point for manual refinement (and save mind-numbing work).
 * PhPuml is able to handle huge amounts of code files, but limiting diagrams to as few classes as needed is always good idea.
 * Cleaner code will yield better results. Type hints and Namespaces help a whole lot, for example.
-* There's a lot of polishing still to be done, like inferring additional relation types or providing more customisations.
-* When parsing directories, only files with the file extension ``*.php`` are currently included.   
+* There's a lot of polishing still to be done, like inferring additional relation types or providing more customisations. 
 
 ## Troubleshooting
 

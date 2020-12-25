@@ -13,15 +13,21 @@ use Symfony\Component\Console\Input\InputOption;
 final class Options implements JsonSerializable
 {
     public const OPTION_EXCLUDE = 'exclude';
-    public const VALUE_EXCLUDE_VENDOR = '~(?:^|/)vendor/~';
+    public const VALUE_EXCLUDE_DEFAULT = '~(?:^|[\\\\/])vendor[\\\\/]~';
+
+    public const OPTION_INCLUDE = 'include';
+    public const VALUE_INCLUDE_DEFAULT = '/\.php$/';
 
     /** @var array $defaults */
     private static $defaults = [
-        self::OPTION_EXCLUDE => [self::VALUE_EXCLUDE_VENDOR]
+        self::OPTION_EXCLUDE => [self::VALUE_EXCLUDE_DEFAULT],
+        self::OPTION_INCLUDE => [self::VALUE_INCLUDE_DEFAULT]
     ];
 
+    /** @var array $flags option flags for command */
     private static $flags = [
-        self::OPTION_EXCLUDE => InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY
+        self::OPTION_EXCLUDE => InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
+        self::OPTION_INCLUDE => InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY
     ];
 
     /** @var array $options */

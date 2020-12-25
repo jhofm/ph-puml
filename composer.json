@@ -19,7 +19,7 @@
         "symfony/dependency-injection": "^5.2",
         "symfony/process": "^5.2",
         "symfony/finder": "^5.2",
-        "jhofm/flysystem-iterator": "^2.2",
+        "league/flysystem": "^2.0",
         "symfony/config": "^5.2",
         "symfony/yaml": "^5.2"
     },

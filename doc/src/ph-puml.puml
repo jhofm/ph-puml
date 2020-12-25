@@ -4,14 +4,12 @@ set namespaceSeparator \\
 
 class Jhofm\\PhPuml\\CodeProvider\\CodeProvider {
   +getCode(directory:string, options:\\Jhofm\\PhPuml\\Options\\Options):\\Generator
-  -getIterator(directory:string, options:\\Jhofm\\PhPuml\\Options\\Options):\\Iterator
+  -getIterator(directory:string, options:\\Jhofm\\PhPuml\\Options\\Options):\\Traversable
 }
 
-Jhofm\\PhPuml\\CodeProvider\\CodeProvider ..> \\Jhofm\\FlysystemIterator\\Filter\\FilterFactory : uses
 Jhofm\\PhPuml\\CodeProvider\\CodeProvider ..> \\Jhofm\\PhPuml\\CodeProvider\\CodeProviderException : throws
 Jhofm\\PhPuml\\CodeProvider\\CodeProvider ..> \\League\\Flysystem\\Filesystem : creates
-Jhofm\\PhPuml\\CodeProvider\\CodeProvider ..> \\League\\Flysystem\\Adapter\\Local : creates
-Jhofm\\PhPuml\\CodeProvider\\CodeProvider ..> \\Jhofm\\FlysystemIterator\\Plugin\\IteratorPlugin : creates
+Jhofm\\PhPuml\\CodeProvider\\CodeProvider ..> \\League\\Flysystem\\Local\\LocalFilesystemAdapter : creates
 
 class Jhofm\\PhPuml\\CodeProvider\\CodeProviderException extends \\Jhofm\\PhPuml\\PhPumlException {
 }
