@@ -58,8 +58,8 @@ class Formatter implements FormatterInterface
      */
     private function getFormatterByFormat(string $format): FormatterInterface
     {
-        return $format === 'puml' ?
-            $this->getFormatterByClassname(NullFormatterStrategy::class)
+        return $format === 'puml'
+            ? $this->getFormatterByClassname(NullFormatterStrategy::class)
             : $this->getFormatterByClassname(PlantUmlFormatterStrategy::class);
     }
 

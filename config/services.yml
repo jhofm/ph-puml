@@ -63,7 +63,3 @@ services:
     arguments:
       - '@Jhofm\PhPuml\Options\Options'
       - !tagged_iterator formatter
-  Jhofm\PhPuml\Formatter\PlantUmlFormatterStrategy:
-    arguments:
-      - '%root-dir%'
-      - '@Jhofm\PhPuml\Options\Options'

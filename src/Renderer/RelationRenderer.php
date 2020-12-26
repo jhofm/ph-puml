@@ -53,7 +53,10 @@ class RelationRenderer
         return $this->typeRenderer->render($relation->getSource())
             . $this->renderRelationType($relation, $relation->getSourceQuantifier(), $relation->getTargetQuantifier())
             . $this->typeRenderer->render($relation->getTarget())
-            . ($relation->getRole() === null ? '' : ' : ' . $relation->getRole());
+            . ($relation->getRole() === null
+                ? ''
+                : ' : ' . $relation->getRole()
+             );
     }
 
     /**

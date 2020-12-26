@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace Jhofm\PhPuml\Command;
 
+use Jhofm\PhPuml\Exception\PhPumlException;
 use Jhofm\PhPuml\Formatter\Formatter;
 use Jhofm\PhPuml\Options\OptionInterface;
 use Jhofm\PhPuml\Options\Options;
-use Jhofm\PhPuml\PhPumlException;
 use Jhofm\PhPuml\Service\PhPuml;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -53,6 +53,8 @@ class ClassDiagramCommand extends Command
 
     /**
      * Command configuration
+     *
+     * @return void
      */
     public function configure()
     {
@@ -97,7 +99,7 @@ class ClassDiagramCommand extends Command
         $puml = $this->formatter->format($puml);
         $outPath = $input->getArgument(self::ARG_OUTPUT_PATH);
         if ($outPath === 'php://stdout') {
-            $output->write($puml, false,Output::OUTPUT_RAW);
+            $output->write($puml, false, Output::OUTPUT_RAW);
         } else {
             if (file_put_contents($outPath, $puml) === false) {
                 throw new PhPumlException(sprintf('Output file "%s" is not writable.', $outPath));

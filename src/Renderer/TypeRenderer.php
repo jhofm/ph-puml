@@ -15,8 +15,8 @@ class TypeRenderer
 {
     /**
      * Render a type name
-     * 
-     * @param ?Node $type
+     *
+     * @param Node|null $type
      *
      * @return string
      */

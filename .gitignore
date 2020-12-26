@@ -4,3 +4,5 @@
 /var/cache/*
 /*.puml
 /composer.lock
+/.phpunit.result.cache
+/ph-puml.phar

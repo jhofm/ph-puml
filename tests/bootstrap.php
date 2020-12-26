@@ -1,7 +1,5 @@
-#!/usr/bin/env php
 <?php
 
-use Symfony\Component\Console\Application;
 use Composer\InstalledVersions;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Container;
@@ -26,7 +24,8 @@ foreach ($autoloadPaths as $autoloadPath) {
  * @return Container
  * @throws Exception
  */
-$container = (function (): Container {
+function getContainer(): Container
+{
     $package = InstalledVersions::getRootPackage();
     $cachePath = dirname(__DIR__) . '/var/cache/container_' . $package['reference'] . '.php';
     if (!file_exists($cachePath)) {
@@ -40,20 +39,8 @@ $container = (function (): Container {
         $loader->load('services.yml');
         $containerBuilder->setParameter('root-dir', dirname(__DIR__));
         $containerBuilder->compile();
-        // do not cache DI container when running as a PHAR
-        if (Phar::running() === 0) {
-            file_put_contents($cachePath, (new PhpDumper($containerBuilder))->dump());
-        } else {
-            return $containerBuilder;
-        }
+        file_put_contents($cachePath, (new PhpDumper($containerBuilder))->dump());
     }
     require_once $cachePath;
     return new ProjectServiceContainer();
-})();
-
-// add command name to input arguments
-$args = array_slice($_SERVER['argv'], 1);
-array_unshift($args, $_SERVER['argv'][0], 'ph-puml');
-$_SERVER['argv'] = $args;
-
-$container->get(Application::class)->run();
+}

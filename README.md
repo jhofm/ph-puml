@@ -1,5 +1,11 @@
 # PhPuml
 
+[![Packagist](https://img.shields.io/packagist/l/jhofm/ph-puml.svg?style=flat-square)](https://packagist.org/packages/jhofm/ph-puml)
+[![Packagist](https://img.shields.io/packagist/v/jhofm/ph-puml.svg?style=flat-square)](https://packagist.org/packages/jhofm/ph-puml)
+[![Packagist](https://img.shields.io/packagist/php-v/jhofm/ph-puml.svg?style=flat-square)](https://packagist.org/packages/jhofm/ph-puml)
+[![CI Workflow](https://img.shields.io/github/workflow/status/jhofm/ph-puml/CI.svg?style=flat-square)](https://github.com/jhofm/ph-puml/actions)
+
+
 ## About PhPuml
 
 PhPuml generates PlantUML class diagrams from PHP code.
@@ -30,15 +36,15 @@ The easiest way to install PhPuml is as a composer project.
 
 ```bash
 $ composer create-project jhofm/ph-puml
-$ ./bin/ph-puml
 ```
 
-It is also possible to install it globally. This may not work if other globally installed 
-packages have conflicting dependencies.
-
- ```bash
- $ composer global require jhofm/ph-puml
- ```
+A [phar](https://www.php.net/manual/en/book.phar.php) version of the tool is created a part of the build process, but currently not reliably downloadable. However with the project already installed,
+you can create the phar yourself using [clue/phar-composer](https://github.com/clue/phar-composer).  
+```bash
+$ curl -JL -o phar-composer.phar https://clue.engineering/phar-composer-latest.phar
+$ php phar-composer.phar ph-puml
+$ php ph-puml.phar
+```
 
 ## Quick Start
 

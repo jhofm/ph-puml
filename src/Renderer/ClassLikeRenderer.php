@@ -89,7 +89,7 @@ class ClassLikeRenderer
             $puml .= 'implements ';
             foreach ($node->implements as $index => $name) {
                 $puml .= $this->typeRenderer->render($name);
-                if ($index < count($node->implements) -1) {
+                if ($index < (count($node->implements) - 1)) {
                     $puml .= ', ';
                 }
             }
@@ -133,7 +133,7 @@ class ClassLikeRenderer
             /** @var Comment $comment */
             foreach ($attributes['comments'] as $comment) {
                 $match = [];
-                if (preg_match('~@var\s+([^\s\[\]]+)(\[\])?~', (string)$comment, $match)) {
+                if (preg_match('~@var\s+([^\s\[\]]+)(\[\])?~', (string) $comment, $match)) {
                     $propertyType = $match[1];
                     if (isset($match[2])) {
                         $propertyType = 'array<' . $propertyType . '>';
@@ -146,7 +146,7 @@ class ClassLikeRenderer
             if (!$prop->name instanceof VarLikeIdentifier) {
                 continue;
             }
-            $propertyName = (string)$prop->name;
+            $propertyName = (string) $prop->name;
             break;
         }
         $puml = '';
@@ -197,21 +197,23 @@ class ClassLikeRenderer
         $methodName = (string) $method->name;
         $puml .= $methodName . '(';
         /**
-         * @var int $index
-         * @var  Param $param
+         * @var integer $index
+         * @var Param $param
          */
         $params = $method->getParams();
         foreach ($params as $index => $param) {
             $paramName = (string) $param->var->name;
-            $paramType =  $param->type === null ? 'mixed' : $this->typeRenderer->render($param->type);
+            $paramType = $param->type === null
+                ? 'mixed'
+                : $this->typeRenderer->render($param->type);
             $puml .= $paramName . ':' . $paramType;
-            if ($index < count($params) -1) {
+            if ($index < (count($params) - 1)) {
                 $puml .= ', ';
             }
         }
         $puml .= ')';
         if ($method->getReturnType() !== null) {
-            $puml.= ':' . $this->typeRenderer->render($method->getReturnType());
+            $puml .= ':' . $this->typeRenderer->render($method->getReturnType());
         }
         return $puml;
     }
@@ -220,8 +222,8 @@ class ClassLikeRenderer
      * Render method/property visibility
      *
      * @param Stmt $node
-     * @return string
      *
+     * @return string
      * @throws RendererException
      */
     private function renderVisibility(Stmt $node): string
@@ -272,7 +274,7 @@ class ClassLikeRenderer
             $puml .= 'extends ';
             foreach ($extends as $index => $extend) {
                 $puml .= $extend;
-                if ($index < count($extends) - 1) {
+                if ($index < (count($extends) - 1)) {
                     $puml .= ', ';
                 }
             }

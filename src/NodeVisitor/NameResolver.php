@@ -20,6 +20,9 @@ use PhpParser\Node\Stmt;
  */
 class NameResolver extends OriginalNameResolver
 {
+    /**
+     * NameResolver constructor.
+     */
     public function __construct()
     {
         parent::__construct(
@@ -28,7 +31,15 @@ class NameResolver extends OriginalNameResolver
         );
     }
 
-    public function enterNode(Node $node) {
+    /**
+     * {@inheritdoc}
+     *
+     * @param Node $node
+     *
+     * @return null|Node[]
+     */
+    public function enterNode(Node $node)
+    {
         if ($node instanceof Stmt\Namespace_) {
             $this->nameContext->startNamespace($node->name);
         } elseif ($node instanceof Stmt\Use_) {
@@ -124,19 +135,35 @@ class NameResolver extends OriginalNameResolver
         return null;
     }
 
-    private function addAlias(Stmt\UseUse $use, $type, Name $prefix = null) {
+    /**
+     * @param Stmt\UseUse $use
+     * @param $type
+     * @param Name|null $prefix
+     *
+     * @return void
+     */
+    private function addAlias(Stmt\UseUse $use, $type, Name $prefix = null)
+    {
         // Add prefix for group uses
         $name = $prefix ? Name::concat($prefix, $use->name) : $use->name;
         // Type is determined either by individual element or whole use declaration
         $type |= $use->type;
 
         $this->nameContext->addAlias(
-            $name, (string) $use->getAlias(), $type, $use->getAttributes()
+            $name,
+            (string) $use->getAlias(),
+            $type,
+            $use->getAttributes()
         );
     }
 
-    /** @param Stmt\Function_|Stmt\ClassMethod|Expr\Closure $node */
-    private function resolveSignature($node) {
+    /**
+     * @param Stmt\Function_|Stmt\ClassMethod|Expr\Closure $node
+     *
+     * @return void
+     */
+    private function resolveSignature($node)
+    {
         foreach ($node->params as $param) {
             $param->type = $this->resolveType($param->type);
             $this->resolveAttrGroups($param);
@@ -144,7 +171,13 @@ class NameResolver extends OriginalNameResolver
         $node->returnType = $this->resolveType($node->returnType);
     }
 
-    private function resolveType($node) {
+    /**
+     * @param $node
+     *
+     * @return Node
+     */
+    private function resolveType($node)
+    {
         if ($node instanceof Name) {
             return $this->resolveClassName($node);
         }
@@ -165,6 +198,8 @@ class NameResolver extends OriginalNameResolver
      * Addition for PHPumlGen: Resolve types in var doc comments
      *
      * @param $node
+     *
+     * @return void
      */
     private function resolveAttributes(Stmt\Property $node)
     {
@@ -178,7 +213,7 @@ class NameResolver extends OriginalNameResolver
                 continue;
             }
             $match = [];
-            if (preg_match('~@var\s+([^\s*]+)~m', (string)$comment, $match)) {
+            if (preg_match('~@var\s+([^\s*]+)~m', (string) $comment, $match)) {
                 $type = $match[1];
                 //TODO use builder?
                 $type = BuilderHelpers::normalizeType($type);

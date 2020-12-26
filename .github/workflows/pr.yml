@@ -1,0 +1,24 @@
+on:
+  pull_request:
+
+name: PR
+
+jobs:
+
+  codestyle:
+    name: Codestyle
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 7.4
+          coverage: none
+          tools: cs2pr
+      - name: Install diff-sniffer
+        run: wget https://github.com/diff-sniffer/diff-sniffer/releases/latest/download/diff-sniffer.phar
+      - name: Run PHPCS on diff introduced by PR
+        run: |
+          git fetch --prune origin
+          php diff-sniffer.phar ${{ github.event.pull_request.base.sha }}...${{ github.event.pull_request.head.sha }} --report=checkstyle | cs2pr

@@ -19,6 +19,8 @@ class CodeProvider
 {
     private const RESULT_KEY_PATH = 'path';
     private const RESULT_KEY_CONTENT = 'content';
+
+    /** @var Options */
     private $options;
 
     /**
@@ -37,8 +39,8 @@ class CodeProvider
      * @return Generator
      * @throws CodeProviderException
      */
-    public function getCode(string $directory): Generator {
-
+    public function getCode(string $directory): Generator
+    {
         $directory = realpath($directory);
         if ($directory === false) {
             throw new CodeProviderException(sprintf('Code path "%s" not found.', $directory));

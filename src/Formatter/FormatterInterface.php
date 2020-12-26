@@ -9,5 +9,10 @@ namespace Jhofm\PhPuml\Formatter;
  */
 interface FormatterInterface
 {
+    /**
+     * @param string $puml
+     *
+     * @return string
+     */
     public function format(string $puml): string;
 }

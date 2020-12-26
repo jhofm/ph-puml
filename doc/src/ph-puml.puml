@@ -3,7 +3,7 @@
 set namespaceSeparator \\ 
 
 class Jhofm\\PhPuml\\CodeProvider\\CodeProvider {
-  -options:mixed
+  -options:Jhofm\PhPuml\Options\Options
   
   +__construct(options:\\Jhofm\\PhPuml\\Options\\Options)
   +getCode(directory:string):\\Generator
@@ -15,7 +15,7 @@ Jhofm\\PhPuml\\CodeProvider\\CodeProvider ..> \\Jhofm\\PhPuml\\CodeProvider\\Cod
 Jhofm\\PhPuml\\CodeProvider\\CodeProvider ..> \\League\\Flysystem\\Filesystem : creates
 Jhofm\\PhPuml\\CodeProvider\\CodeProvider ..> \\League\\Flysystem\\Local\\LocalFilesystemAdapter : creates
 
-class Jhofm\\PhPuml\\CodeProvider\\CodeProviderException extends \\Jhofm\\PhPuml\\PhPumlException {
+class Jhofm\\PhPuml\\CodeProvider\\CodeProviderException extends \\Jhofm\\PhPuml\\Exception\\PhPumlException {
 }
 
 class Jhofm\\PhPuml\\Command\\ClassDiagramCommand extends \\Symfony\\Component\\Console\\Command\\Command {
@@ -31,7 +31,10 @@ class Jhofm\\PhPuml\\Command\\ClassDiagramCommand extends \\Symfony\\Component\\
 Jhofm\\PhPuml\\Command\\ClassDiagramCommand --> \\Jhofm\\PhPuml\\Service\\PhPuml
 Jhofm\\PhPuml\\Command\\ClassDiagramCommand --> \\Jhofm\\PhPuml\\Options\\Options
 Jhofm\\PhPuml\\Command\\ClassDiagramCommand --> \\Jhofm\\PhPuml\\Formatter\\Formatter
-Jhofm\\PhPuml\\Command\\ClassDiagramCommand ..> \\Jhofm\\PhPuml\\PhPumlException : throws
+Jhofm\\PhPuml\\Command\\ClassDiagramCommand ..> \\Jhofm\\PhPuml\\Exception\\PhPumlException : throws
+
+class Jhofm\\PhPuml\\Exception\\PhPumlException extends \\Exception {
+}
 
 class Jhofm\\PhPuml\\Formatter\\Formatter implements \\Jhofm\\PhPuml\\Formatter\\FormatterInterface {
   -formatters:array<Jhofm\PhPuml\Formatter\FormatterInterface>
@@ -46,7 +49,7 @@ class Jhofm\\PhPuml\\Formatter\\Formatter implements \\Jhofm\\PhPuml\\Formatter\
 Jhofm\\PhPuml\\Formatter\\Formatter --> \\Jhofm\\PhPuml\\Options\\Options
 Jhofm\\PhPuml\\Formatter\\Formatter ..> \\Jhofm\\PhPuml\\Formatter\\FormatterException : throws
 
-class Jhofm\\PhPuml\\Formatter\\FormatterException extends \\Jhofm\\PhPuml\\PhPumlException {
+class Jhofm\\PhPuml\\Formatter\\FormatterException extends \\Jhofm\\PhPuml\\Exception\\PhPumlException {
 }
 
 interface Jhofm\\PhPuml\\Formatter\\FormatterInterface {
@@ -61,7 +64,7 @@ class Jhofm\\PhPuml\\Formatter\\PlantUmlFormatterStrategy implements \\Jhofm\\Ph
   -options:Jhofm\PhPuml\Options\Options
   -rootDir:string
   
-  +__construct(rootDir:string, options:\\Jhofm\\PhPuml\\Options\\Options)
+  +__construct(options:\\Jhofm\\PhPuml\\Options\\Options)
   +format(puml:string):string
   -getPlantUmlParameterForFormat(format:string):string
   -getPlantUmlJarPath():string
@@ -85,6 +88,8 @@ Jhofm\\PhPuml\\NodeVisitor\\NameResolver ..> \\PhpParser\\BuilderHelpers : uses
 Jhofm\\PhPuml\\NodeVisitor\\NameResolver ..> \\PhpParser\\Comment\\Doc : creates
 
 class Jhofm\\PhPuml\\Options\\Option <<leaf>> implements \\Jhofm\\PhPuml\\Options\\OptionInterface {
+  -config:array
+  
   +__construct(config:array)
   +isArray():bool
   +getValue()
@@ -112,7 +117,7 @@ class Jhofm\\PhPuml\\Options\\Options <<leaf>> implements \\JsonSerializable, \\
   -options:array
   
   +__construct(options:array)
-  -validateConfig(options:array)
+  -validateConfig(options:array):void
   +getIterator()
   +setValues(values:array):self
   +has(name:string):bool
@@ -122,16 +127,13 @@ class Jhofm\\PhPuml\\Options\\Options <<leaf>> implements \\JsonSerializable, \\
   +__set(name:string, value:mixed):self
   +set(name:string, value:mixed):self
   +jsonSerialize()
-  -validate(name:string, value:mixed)
+  -validate(name:string, value:mixed):void
 }
 
 Jhofm\\PhPuml\\Options\\Options ..> \\Jhofm\\PhPuml\\Options\\OptionsException : throws
 Jhofm\\PhPuml\\Options\\Options ..> \\Jhofm\\PhPuml\\Options\\Option : creates
 
-class Jhofm\\PhPuml\\Options\\OptionsException extends \\Jhofm\\PhPuml\\PhPumlException {
-}
-
-class Jhofm\\PhPuml\\PhPumlException extends \\Exception {
+class Jhofm\\PhPuml\\Options\\OptionsException extends \\Jhofm\\PhPuml\\Exception\\PhPumlException {
 }
 
 class Jhofm\\PhPuml\\Relation\\Relation {
@@ -139,8 +141,8 @@ class Jhofm\\PhPuml\\Relation\\Relation {
   -target:PhpParser\Node
   -relationType:string
   -role:Jhofm\PhPuml\Relation\string|null
-  -sourceQuantifier:Jhofm\PhPuml\Relation\int|null
-  -targetQuantifier:Jhofm\PhPuml\Relation\int|null
+  -sourceQuantifier:Jhofm\PhPuml\Relation\integer|null
+  -targetQuantifier:Jhofm\PhPuml\Relation\integer|null
   
   +__construct(source:\\PhpParser\\Node, target:\\PhpParser\\Node, relationType:string, role:string = null, sourceQuantifier:int = null, targetQuantifier:int = null)
   +getRelationType():string
@@ -187,7 +189,7 @@ Jhofm\\PhPuml\\Renderer\\ClassLikeRenderer --> \\Jhofm\\PhPuml\\Renderer\\TypeRe
 Jhofm\\PhPuml\\Renderer\\ClassLikeRenderer ..> \\Jhofm\\PhPuml\\Renderer\\RendererException : throws
 
 abstract class Jhofm\\PhPuml\\Renderer\\IndentedRenderTrait <<trait>> {
-  -indentation:int
+  -indentation:Jhofm\PhPuml\Renderer\integer
   -indentationString:string
   
   -appendLine(puml:string, line:string):void
@@ -205,7 +207,7 @@ class Jhofm\\PhPuml\\Renderer\\RelationRenderer extends \\Jhofm\\PhPuml\\Rendere
 
 Jhofm\\PhPuml\\Renderer\\RelationRenderer --> \\Jhofm\\PhPuml\\Renderer\\TypeRenderer
 
-class Jhofm\\PhPuml\\Renderer\\RendererException extends \\Jhofm\\PhPuml\\PhPumlException {
+class Jhofm\\PhPuml\\Renderer\\RendererException extends \\Jhofm\\PhPuml\\Exception\\PhPumlException {
 }
 
 class Jhofm\\PhPuml\\Renderer\\TypeRenderer {
@@ -232,6 +234,6 @@ Jhofm\\PhPuml\\Service\\PhPuml --> \\PhpParser\\Parser
 Jhofm\\PhPuml\\Service\\PhPuml --> \\Jhofm\\PhPuml\\Relation\\RelationInferrer
 Jhofm\\PhPuml\\Service\\PhPuml --> \\Jhofm\\PhPuml\\Renderer\\ClassLikeRenderer
 Jhofm\\PhPuml\\Service\\PhPuml --> \\Jhofm\\PhPuml\\Renderer\\RelationRenderer
-Jhofm\\PhPuml\\Service\\PhPuml ..> \\Jhofm\\PhPuml\\PhPumlException : throws
+Jhofm\\PhPuml\\Service\\PhPuml ..> \\Jhofm\\PhPuml\\Exception\\PhPumlException : throws
 
 @enduml

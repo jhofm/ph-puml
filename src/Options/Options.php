@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Jhofm\PhPuml\Options;
 
+use Generator;
 use IteratorAggregate;
 use JsonSerializable;
 use Jhofm\PhPuml\Options\OptionConfiguration as Conf;
@@ -33,8 +34,9 @@ final class Options implements JsonSerializable, IteratorAggregate
      * @param array $options
      *
      * @throws OptionsException
+     * @return void
      */
-    private function validateConfig(array $options)
+    private function validateConfig(array $options): void
     {
         foreach ($options as $name => $option) {
             foreach ([Conf::KEY_VALUE] as $requiredField) {
@@ -47,6 +49,8 @@ final class Options implements JsonSerializable, IteratorAggregate
 
     /**
      * {@inheritdoc}
+     *
+     * @return Generator
      */
     public function getIterator()
     {
@@ -101,12 +105,13 @@ final class Options implements JsonSerializable, IteratorAggregate
      */
     public function get(string $name)
     {
-       $this->validate($name);
-        return $this->options[$name][Conf::KEY_VALUE] ?? null;
+        $this->validate($name);
+        return ($this->options[$name][Conf::KEY_VALUE] ?? null);
     }
 
     /**
      * @param string $name
+     *
      * @return Option
      * @throws OptionsException
      */
@@ -146,6 +151,8 @@ final class Options implements JsonSerializable, IteratorAggregate
 
     /**
      * [@inheritdoc}
+     *
+     * @return array
      */
     public function jsonSerialize()
     {
@@ -157,8 +164,9 @@ final class Options implements JsonSerializable, IteratorAggregate
      * @param null $value
      *
      * @throws OptionsException
+     * @return void
      */
-    private function validate(string $name, $value = null)
+    private function validate(string $name, $value = null): void
     {
         if (!$this->has($name)) {
             throw new OptionsException(sprintf('Unknown option "%s".', $name));
