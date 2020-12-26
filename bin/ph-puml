@@ -26,6 +26,7 @@ $container = (function (): ProjectServiceContainer {
             new FileLocator(
                 dirname(__DIR__) . '/config'));
         $loader->load('services.yml');
+        $containerBuilder->setParameter('root-dir', dirname(__DIR__));
         $containerBuilder->compile();
         file_put_contents($cachePath, (new PhpDumper($containerBuilder))->dump());
     }

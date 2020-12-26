@@ -19,6 +19,17 @@ class CodeProvider
 {
     private const RESULT_KEY_PATH = 'path';
     private const RESULT_KEY_CONTENT = 'content';
+    private $options;
+
+    /**
+     * CodeProvider constructor.
+     *
+     * @param Options $options
+     */
+    public function __construct(Options $options)
+    {
+        $this->options = $options;
+    }
 
     /**
      * @param string $directory
@@ -26,7 +37,7 @@ class CodeProvider
      * @return Generator
      * @throws CodeProviderException
      */
-    public function getCode(string $directory, Options $options): Generator {
+    public function getCode(string $directory): Generator {
 
         $directory = realpath($directory);
         if ($directory === false) {
@@ -35,7 +46,7 @@ class CodeProvider
 
         if (is_dir($directory)) {
             try {
-                $iterator = $this->getIterator($directory, $options);
+                $iterator = $this->getIterator($directory);
                 foreach ($iterator as $file) {
                     yield $file[self::RESULT_KEY_PATH] => $file[self::RESULT_KEY_CONTENT];
                 }
@@ -49,12 +60,11 @@ class CodeProvider
 
     /**
      * @param string $directory
-     * @param Options $options
      *
      * @return Traversable
      * @throws FilesystemException
      */
-    private function getIterator(string $directory, Options $options): Traversable
+    private function getIterator(string $directory): Traversable
     {
         $fs = new Filesystem(
             new LocalFilesystemAdapter(
@@ -66,13 +76,13 @@ class CodeProvider
         );
         return $fs->listContents('.', true)
             ->filter(
-                function (StorageAttributes $attributes) use ($options) {
+                function (StorageAttributes $attributes) {
                     if (!$attributes->isFile()) {
                         return false;
                     }
                     // at least one inclusion rule must match
                     $match = false;
-                    foreach ($options->{Options::OPTION_INCLUDE} as $includeRegex) {
+                    foreach ($this->options->include as $includeRegex) {
                         if ($includeRegex !== null && preg_match($includeRegex, $attributes->path())) {
                             $match = true;
                             break;
@@ -80,7 +90,7 @@ class CodeProvider
                     }
                     // no exclusion rule may match
                     if ($match === true) {
-                        foreach ($options->{Options::OPTION_EXCLUDE} as $excludeRegex) {
+                        foreach ($this->options->exclude as $excludeRegex) {
                             if ($excludeRegex !== null && preg_match($excludeRegex, $attributes->path())) {
                                 return false;
                             }
@@ -90,7 +100,7 @@ class CodeProvider
                     return false;
                 }
             )->map(
-                function (StorageAttributes $attributes) use ($options, $directory, $fs) {
+                function (StorageAttributes $attributes) use ($directory, $fs) {
                     return [
                         self::RESULT_KEY_PATH => $directory . '/' . $attributes->path(),
                         self::RESULT_KEY_CONTENT => $fs->read($attributes->path())
@@ -98,5 +108,4 @@ class CodeProvider
                 }
             );
     }
-
 }

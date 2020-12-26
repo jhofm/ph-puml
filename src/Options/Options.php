@@ -4,69 +4,82 @@ declare(strict_types=1);
 
 namespace Jhofm\PhPuml\Options;
 
+use IteratorAggregate;
 use JsonSerializable;
-use Symfony\Component\Console\Input\InputOption;
+use Jhofm\PhPuml\Options\OptionConfiguration as Conf;
 
 /**
  * Class Options
  */
-final class Options implements JsonSerializable
+final class Options implements JsonSerializable, IteratorAggregate
 {
-    public const OPTION_EXCLUDE = 'exclude';
-    public const VALUE_EXCLUDE_DEFAULT = '~(?:^|[\\\\/])vendor[\\\\/]~';
-
-    public const OPTION_INCLUDE = 'include';
-    public const VALUE_INCLUDE_DEFAULT = '/\.php$/';
-
-    /** @var array $defaults */
-    private static $defaults = [
-        self::OPTION_EXCLUDE => [self::VALUE_EXCLUDE_DEFAULT],
-        self::OPTION_INCLUDE => [self::VALUE_INCLUDE_DEFAULT]
-    ];
-
-    /** @var array $flags option flags for command */
-    private static $flags = [
-        self::OPTION_EXCLUDE => InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY,
-        self::OPTION_INCLUDE => InputOption::VALUE_OPTIONAL | InputOption::VALUE_IS_ARRAY
-    ];
-
     /** @var array $options */
-    protected $options;
-
-    /**
-     * @param array $options
-     * @return Options
-     */
-    public static function fromArray(array $options): Options
-    {
-        return new self(
-            array_merge(self::$defaults, $options)
-        );
-    }
-
-    /**
-     * @return array
-     */
-    public static function getDefaults(): array
-    {
-        return self::$defaults;
-    }
-
-    /**
-     * @return array
-     */
-    public static function getFlags(string $option): ?int
-    {
-        return self::$flags[$option] ?? null;
-    }
+    private $options;
 
     /**
      * Options constructor.
+     *
      * @param array $options
+     *
+     * @throws OptionsException
      */
-    private function __construct(array $options)
+    public function __construct(array $options)
     {
+        $this->validateConfig($options);
         $this->options = $options;
+    }
+
+    /**
+     * @param array $options
+     *
+     * @throws OptionsException
+     */
+    private function validateConfig(array $options)
+    {
+        foreach ($options as $name => $option) {
+            foreach ([Conf::KEY_VALUE] as $requiredField) {
+                if (!array_key_exists($requiredField, $option)) {
+                    throw new OptionsException(sprintf('Option "%s" is missing required field "%s".', $name, $requiredField));
+                }
+            }
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getIterator()
+    {
+        foreach ($this->options as $name => $option) {
+            $option[Conf::KEY_NAME] = $name;
+            yield $name => new Option($option);
+        }
+    }
+
+    /**
+     * @param array $values
+     *
+     * @return Options
+     * @throws OptionsException
+     */
+    public function setValues(array $values): self
+    {
+        foreach ($values as $name => $value) {
+            if ($this->has($name)) {
+                $this->set($name, $value);
+            }
+        }
+        return $this;
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return bool
+     */
+    public function has(string $name): bool
+    {
+        return array_key_exists($name, $this->options);
     }
 
     /**
@@ -77,10 +90,58 @@ final class Options implements JsonSerializable
      */
     public function __get(string $name)
     {
-        if (!array_key_exists($name, $this->options)) {
-            throw new OptionsException(sprintf('Unknown option "%s".', $name));
-        }
-        return $this->options[$name];
+        return $this->get($name);
+    }
+
+    /**
+     * @param string $name
+     *
+     * @return mixed
+     * @throws OptionsException
+     */
+    public function get(string $name)
+    {
+       $this->validate($name);
+        return $this->options[$name][Conf::KEY_VALUE] ?? null;
+    }
+
+    /**
+     * @param string $name
+     * @return Option
+     * @throws OptionsException
+     */
+    public function getOption(string $name): OptionInterface
+    {
+        $this->validate($name);
+        $option = $this->options[$name];
+        $option[Conf::KEY_NAME] = $name;
+        return new Option($option);
+    }
+
+    /**
+     * @param string $name
+     * @param $value
+     *
+     * @return Options
+     * @throws OptionsException
+     */
+    public function __set(string $name, $value): self
+    {
+        return $this->set($name, $value);
+    }
+
+    /**
+     * @param string $name
+     * @param $value
+     *
+     * @return self
+     * @throws OptionsException
+     */
+    public function set(string $name, $value): self
+    {
+        $this->validate($name, $value);
+        $this->options[$name][Conf::KEY_VALUE] = $value;
+        return $this;
     }
 
     /**
@@ -89,5 +150,24 @@ final class Options implements JsonSerializable
     public function jsonSerialize()
     {
         return $this->options;
+    }
+
+    /**
+     * @param string $name
+     * @param null $value
+     *
+     * @throws OptionsException
+     */
+    private function validate(string $name, $value = null)
+    {
+        if (!$this->has($name)) {
+            throw new OptionsException(sprintf('Unknown option "%s".', $name));
+        }
+        if ($value !== null
+            && array_key_exists(Conf::KEY_VALUES, $this->options[$name])
+            && !in_array($value, $this->options[$name][Conf::KEY_VALUES])
+        ) {
+            throw new OptionsException(sprintf('Value "%s" is not valid for option "%s".', $value, $name));
+        }
     }
 }

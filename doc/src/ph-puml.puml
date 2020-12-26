@@ -3,10 +3,14 @@
 set namespaceSeparator \\ 
 
 class Jhofm\\PhPuml\\CodeProvider\\CodeProvider {
-  +getCode(directory:string, options:\\Jhofm\\PhPuml\\Options\\Options):\\Generator
-  -getIterator(directory:string, options:\\Jhofm\\PhPuml\\Options\\Options):\\Traversable
+  -options:mixed
+  
+  +__construct(options:\\Jhofm\\PhPuml\\Options\\Options)
+  +getCode(directory:string):\\Generator
+  -getIterator(directory:string):\\Traversable
 }
 
+Jhofm\\PhPuml\\CodeProvider\\CodeProvider --> \\Jhofm\\PhPuml\\Options\\Options
 Jhofm\\PhPuml\\CodeProvider\\CodeProvider ..> \\Jhofm\\PhPuml\\CodeProvider\\CodeProviderException : throws
 Jhofm\\PhPuml\\CodeProvider\\CodeProvider ..> \\League\\Flysystem\\Filesystem : creates
 Jhofm\\PhPuml\\CodeProvider\\CodeProvider ..> \\League\\Flysystem\\Local\\LocalFilesystemAdapter : creates
@@ -16,14 +20,56 @@ class Jhofm\\PhPuml\\CodeProvider\\CodeProviderException extends \\Jhofm\\PhPuml
 
 class Jhofm\\PhPuml\\Command\\ClassDiagramCommand extends \\Symfony\\Component\\Console\\Command\\Command {
   -phpumlService:Jhofm\PhPuml\Service\PhPuml
+  -options:Jhofm\PhPuml\Options\Options
+  -formatter:Jhofm\PhPuml\Formatter\Formatter
   
-  +__construct(phpumlService:\\Jhofm\\PhPuml\\Service\\PhPuml, name:string = null)
+  +__construct(phpumlService:\\Jhofm\\PhPuml\\Service\\PhPuml, options:\\Jhofm\\PhPuml\\Options\\Options, formatter:\\Jhofm\\PhPuml\\Formatter\\Formatter, name:string = null)
   +configure()
   +execute(input:\\Symfony\\Component\\Console\\Input\\InputInterface, output:\\Symfony\\Component\\Console\\Output\\OutputInterface)
 }
 
 Jhofm\\PhPuml\\Command\\ClassDiagramCommand --> \\Jhofm\\PhPuml\\Service\\PhPuml
-Jhofm\\PhPuml\\Command\\ClassDiagramCommand ..> \\Jhofm\\PhPuml\\Options\\Options : uses
+Jhofm\\PhPuml\\Command\\ClassDiagramCommand --> \\Jhofm\\PhPuml\\Options\\Options
+Jhofm\\PhPuml\\Command\\ClassDiagramCommand --> \\Jhofm\\PhPuml\\Formatter\\Formatter
+Jhofm\\PhPuml\\Command\\ClassDiagramCommand ..> \\Jhofm\\PhPuml\\PhPumlException : throws
+
+class Jhofm\\PhPuml\\Formatter\\Formatter implements \\Jhofm\\PhPuml\\Formatter\\FormatterInterface {
+  -formatters:array<Jhofm\PhPuml\Formatter\FormatterInterface>
+  -options:Jhofm\PhPuml\Options\Options
+  
+  +__construct(options:\\Jhofm\\PhPuml\\Options\\Options, formatters:mixed)
+  +format(puml:string = null):string
+  -getFormatterByFormat(format:string):\\Jhofm\\PhPuml\\Formatter\\FormatterInterface
+  -getFormatterByClassname(class:string):\\Jhofm\\PhPuml\\Formatter\\FormatterInterface
+}
+
+Jhofm\\PhPuml\\Formatter\\Formatter --> \\Jhofm\\PhPuml\\Options\\Options
+Jhofm\\PhPuml\\Formatter\\Formatter ..> \\Jhofm\\PhPuml\\Formatter\\FormatterException : throws
+
+class Jhofm\\PhPuml\\Formatter\\FormatterException extends \\Jhofm\\PhPuml\\PhPumlException {
+}
+
+interface Jhofm\\PhPuml\\Formatter\\FormatterInterface {
+  +format(puml:string):string
+}
+
+class Jhofm\\PhPuml\\Formatter\\NullFormatterStrategy implements \\Jhofm\\PhPuml\\Formatter\\FormatterInterface {
+  +format(puml:string):string
+}
+
+class Jhofm\\PhPuml\\Formatter\\PlantUmlFormatterStrategy implements \\Jhofm\\PhPuml\\Formatter\\FormatterInterface {
+  -options:Jhofm\PhPuml\Options\Options
+  -rootDir:string
+  
+  +__construct(rootDir:string, options:\\Jhofm\\PhPuml\\Options\\Options)
+  +format(puml:string):string
+  -getPlantUmlParameterForFormat(format:string):string
+  -getPlantUmlJarPath():string
+}
+
+Jhofm\\PhPuml\\Formatter\\PlantUmlFormatterStrategy --> \\Jhofm\\PhPuml\\Options\\Options
+Jhofm\\PhPuml\\Formatter\\PlantUmlFormatterStrategy ..> \\Jhofm\\PhPuml\\Formatter\\FormatterException : throws
+Jhofm\\PhPuml\\Formatter\\PlantUmlFormatterStrategy ..> \\Symfony\\Component\\Process\\Process : creates
 
 class Jhofm\\PhPuml\\NodeVisitor\\NameResolver extends \\PhpParser\\NodeVisitor\\NameResolver {
   +__construct()
@@ -38,20 +84,49 @@ Jhofm\\PhPuml\\NodeVisitor\\NameResolver ..> \\PhpParser\\Node\\Name : uses
 Jhofm\\PhPuml\\NodeVisitor\\NameResolver ..> \\PhpParser\\BuilderHelpers : uses
 Jhofm\\PhPuml\\NodeVisitor\\NameResolver ..> \\PhpParser\\Comment\\Doc : creates
 
-class Jhofm\\PhPuml\\Options\\Options <<leaf>> implements \\JsonSerializable {
-  {static} -defaults:array
-  {static} -flags:mixed
-  #options:array
+class Jhofm\\PhPuml\\Options\\Option <<leaf>> implements \\Jhofm\\PhPuml\\Options\\OptionInterface {
+  +__construct(config:array)
+  +isArray():bool
+  +getValue()
+  +__toString():string
+  +getValidValues():array = null
+  +getName():string
+  +getShortName():string = null
+  +getDescription():string = null
+}
+
+class Jhofm\\PhPuml\\Options\\OptionConfiguration <<leaf>> {
+}
+
+interface Jhofm\\PhPuml\\Options\\OptionInterface {
+  +getName():string
+  +getShortName():string = null
+  +getDescription():string = null
+  +getValidValues():array = null
+  +getValue()
+  +isArray():bool
+  +__toString():string
+}
+
+class Jhofm\\PhPuml\\Options\\Options <<leaf>> implements \\JsonSerializable, \\IteratorAggregate {
+  -options:array
   
-  {static} +fromArray(options:array):\\Jhofm\\PhPuml\\Options\\Options
-  {static} +getDefaults():array
-  {static} +getFlags(option:string):int = null
-  -__construct(options:array)
+  +__construct(options:array)
+  -validateConfig(options:array)
+  +getIterator()
+  +setValues(values:array):self
+  +has(name:string):bool
   +__get(name:string)
+  +get(name:string)
+  +getOption(name:string):\\Jhofm\\PhPuml\\Options\\OptionInterface
+  +__set(name:string, value:mixed):self
+  +set(name:string, value:mixed):self
   +jsonSerialize()
+  -validate(name:string, value:mixed)
 }
 
 Jhofm\\PhPuml\\Options\\Options ..> \\Jhofm\\PhPuml\\Options\\OptionsException : throws
+Jhofm\\PhPuml\\Options\\Options ..> \\Jhofm\\PhPuml\\Options\\Option : creates
 
 class Jhofm\\PhPuml\\Options\\OptionsException extends \\Jhofm\\PhPuml\\PhPumlException {
 }
@@ -147,7 +222,7 @@ class Jhofm\\PhPuml\\Service\\PhPuml {
   -relationRenderer:Jhofm\PhPuml\Renderer\RelationRenderer
   
   +__construct(codeProvider:\\Jhofm\\PhPuml\\CodeProvider\\CodeProvider, nodeFinder:\\PhpParser\\NodeFinder, namespaceTraverser:\\PhpParser\\NodeTraverser, parser:\\PhpParser\\Parser, relationInferrer:\\Jhofm\\PhPuml\\Relation\\RelationInferrer, classLikeRenderer:\\Jhofm\\PhPuml\\Renderer\\ClassLikeRenderer, relationRenderer:\\Jhofm\\PhPuml\\Renderer\\RelationRenderer)
-  +generatePuml(input:string, options:\\Jhofm\\PhPuml\\Options\\Options):string
+  +generatePuml(input:string):string
 }
 
 Jhofm\\PhPuml\\Service\\PhPuml --> \\Jhofm\\PhPuml\\CodeProvider\\CodeProvider

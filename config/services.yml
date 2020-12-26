@@ -1,4 +1,9 @@
+parameters:
+  plantuml.executable: vendor\jawira\plantuml\bin\plantuml.jar
 services:
+  _instanceof:
+    Jhofm\PhPuml\Formatter\FormatterInterface:
+      tags: ['formatter']
   _defaults:
     autowire: true
 
@@ -19,3 +24,46 @@ services:
 
   Jhofm\PhPuml\:
     resource: '../src/*'
+
+  Jhofm\PhPuml\Options\Options:
+    arguments:
+      - exclude:
+          name-short: e
+          is-array: true
+          value: ['~(?:^|[\\/])vendor[\\/]~']
+          description: include regex patterns (at least one must match file path)
+        include:
+          name-short: i
+          is-array: true
+          value: ['/\.php$/']
+          description: exclude regex patterns (none may match file path)
+        format:
+          name-short: f
+          is-array: false
+          value: puml
+          description: diagram output format. all formats apart from puml (the default) require the package jawira/plantuml to be present.
+          values:
+            - puml
+            - latex
+            - latex:nopreamble
+            - eps
+            - png
+            - scxml
+            - svg
+            - txt
+            - utxt
+            - vdx
+            - xmi
+        plantuml-path:
+          name-short: p
+          is-array: false
+          value: '%plantuml.executable%'
+          description: path to a local plantuml.jar executable. this can be used to output PlantUML output formats without installing the jawira/plantuml package.
+  Jhofm\PhPuml\Formatter\Formatter:
+    arguments:
+      - '@Jhofm\PhPuml\Options\Options'
+      - !tagged_iterator formatter
+  Jhofm\PhPuml\Formatter\PlantUmlFormatterStrategy:
+    arguments:
+      - '%root-dir%'
+      - '@Jhofm\PhPuml\Options\Options'
