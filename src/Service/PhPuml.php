@@ -6,7 +6,6 @@ namespace Jhofm\PhPuml\Service;
 
 use Jhofm\PhPuml\CodeProvider\CodeProvider;
 use Jhofm\PhPuml\PhPumlException;
-use Jhofm\PhPuml\Options\Options;
 use Jhofm\PhPuml\Relation\RelationInferrer;
 use Jhofm\PhPuml\Renderer\ClassLikeRenderer;
 use Jhofm\PhPuml\Renderer\RelationRenderer;
@@ -77,15 +76,14 @@ EOT;
 
     /**
      * @param string $input
-     * @param Options $options
      *
      * @return string
      * @throws PhPumlException
      */
-    public function generatePuml(string $input, Options $options): string
+    public function generatePuml(string $input): string
     {
         $puml = self::PUML_HEADER;
-        $codeFiles = $this->codeProvider->getCode($input, $options);
+        $codeFiles = $this->codeProvider->getCode($input);
         foreach ($codeFiles as $path => $code) {
             try {
                 $nodes = $this->parser->parse($code);

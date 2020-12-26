@@ -3,3 +3,4 @@
 !/var/cache/.gitkeep
 /var/cache/*
 /*.puml
+/composer.lock

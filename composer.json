@@ -10,8 +10,6 @@
         }
     ],
     "bin": ["bin/ph-puml"],
-    "require-dev": {
-    },
     "require": {
         "ext-json": "*",
         "symfony/console": "^5.2",
@@ -22,6 +20,9 @@
         "league/flysystem": "^2.0",
         "symfony/config": "^5.2",
         "symfony/yaml": "^5.2"
+    },
+    "suggest": {
+        "jawira/plantuml": "For generating output using PlantUML"
     },
     "autoload": {
         "psr-4": {
