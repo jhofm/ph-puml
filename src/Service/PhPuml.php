@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Jhofm\PhPuml\Service;
 
 use Jhofm\PhPuml\CodeProvider\CodeProvider;
-use Jhofm\PhPuml\PhPumlException;
+use Jhofm\PhPuml\Exception\PhPumlException;
 use Jhofm\PhPuml\Relation\RelationInferrer;
 use Jhofm\PhPuml\Renderer\ClassLikeRenderer;
 use Jhofm\PhPuml\Renderer\RelationRenderer;

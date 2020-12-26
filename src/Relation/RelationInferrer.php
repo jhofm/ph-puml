@@ -78,7 +78,7 @@ class RelationInferrer
 
     /**
      * @param Node $node
-     * 
+     *
      * @return Node[] $types
      */
     private function getConstructorArgumentTypes(Node $node): array
@@ -107,6 +107,7 @@ class RelationInferrer
 
     /**
      * @param ClassLike $node
+     * @param array $types
      *
      * @return Node[] $types
      */
@@ -135,6 +136,11 @@ class RelationInferrer
         return $result;
     }
 
+    /**
+     * @param Node $nodeOfType
+     *
+     * @return Name|null
+     */
     private function getTypeFromNode(Node $nodeOfType): ?Name
     {
         if ($nodeOfType instanceof Node\Stmt\Throw_ && $nodeOfType->expr instanceof New_) {

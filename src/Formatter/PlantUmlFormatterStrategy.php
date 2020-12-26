@@ -23,12 +23,10 @@ class PlantUmlFormatterStrategy implements FormatterInterface
     /**
      * PlantUmlFormatterStrategy constructor.
      *
-     * @param string $rootDir
      * @param Options $options
      */
-    public function __construct(string $rootDir, Options $options)
+    public function __construct(Options $options)
     {
-        $this->rootDir = $rootDir;
         $this->options = $options;
     }
 
@@ -40,7 +38,7 @@ class PlantUmlFormatterStrategy implements FormatterInterface
      */
     public function format(string $puml): string
     {
-        $proc = new Process(['java', '-jar', $this->getPlantUmlJarPath(), '-pipe', $this->getPlantUmlParameterForFormat($this->options->format)], $this->rootDir);
+        $proc = new Process(['java', '-jar', $this->getPlantUmlJarPath(), '-pipe', $this->getPlantUmlParameterForFormat($this->options->format)]);
         $proc->setInput($puml);
         try {
             $proc->mustRun();
@@ -66,17 +64,19 @@ class PlantUmlFormatterStrategy implements FormatterInterface
 
     /**
      * @throws FormatterException
+     *
+     * @return string
      */
     private function getPlantUmlJarPath(): string
-    {   try {
+    {
+        try {
             $path = realpath($this->options->get('plantuml-path'));
         } catch (OptionsException $e) {
             throw new FormatterException('Error determining plantuml-path parameter.', 1609059884, $e);
         }
         if ($path === false) {
             throw new FormatterException(
-                'Format unavailable, plantuml.jar not found. Either provide a valid path '
-                . 'via the plantuml-path parameter or install the optional composer package jawira/plantuml.'
+                'Format unavailable, plantuml.jar not found. Either provide a valid path via the plantuml-path parameter or install the optional composer package jawira/plantuml.'
             );
         }
         return $path;

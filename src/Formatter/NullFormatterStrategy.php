@@ -9,6 +9,13 @@ namespace Jhofm\PhPuml\Formatter;
  */
 class NullFormatterStrategy implements FormatterInterface
 {
+    /**
+     * My eyes! The formatter does nothing!
+     *
+     * @param string $puml
+     *
+     * @return string
+     */
     public function format(string $puml): string
     {
         return $puml;

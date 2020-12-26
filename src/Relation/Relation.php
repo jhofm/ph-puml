@@ -24,9 +24,9 @@ class Relation
     private $relationType;
     /** @var string|null */
     private $role;
-    /** @var int|null */
+    /** @var integer|null */
     private $sourceQuantifier;
-    /** @var int|null */
+    /** @var integer|null */
     private $targetQuantifier;
 
     /**

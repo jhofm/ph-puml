@@ -1,0 +1,31 @@
+tools:
+  php_sim: true
+  php_pdepend: true
+  php_analyzer: true
+  php_code_sniffer: true
+  php_changetracking: true
+  php_mess_detector: true
+  sensiolabs_security_checker: true
+  php_cs_fixer:
+    config: { level: psr2 }
+before_commands:
+  - composer install --prefer-dist -o
+filter:
+  excluded_paths:
+    - 'tests/*'
+    - 'doc/*'
+build:
+  environment:
+    php:
+      version: '7.4'
+      ini:
+        apc.enabled: 1
+        apc.enable_cli: 1
+  tests:
+    override:
+      -
+        command: vendor/bin/phpunit --coverage-clover=clover.xml
+        coverage:
+          file: clover.xml
+          format: php-clover
+      - command: php-scrutinizer-run --enable-security-analysis
