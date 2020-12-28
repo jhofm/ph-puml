@@ -99,6 +99,6 @@ jobs:
         run: php phar-composer.phar build
       - uses: actions/upload-artifact@v2
         with:
-          name: ph-puml-${{ steps.branch_name.outputs.SOURCE_BRANCH }}.phar
+          name: ph-puml-${{ steps.branch_name.outputs.SOURCE_TAG }}.phar
           path: ph-puml.phar
           retention-days: 90
