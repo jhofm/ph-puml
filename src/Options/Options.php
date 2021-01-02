@@ -48,6 +48,34 @@ final class Options implements JsonSerializable, IteratorAggregate
     }
 
     /**
+     * Check if a flag character is set
+     *
+     * @param string $name
+     * @param string $char
+     *
+     * @return bool
+     * @throws OptionsException
+     */
+    public function hasFlag(string $name, string $char): bool
+    {
+        $this->validate($name);
+        if (!array_key_exists(Conf::KEY_IS_FLAGS, $this->options[$name])
+            || !$this->options[$name][Conf::KEY_IS_FLAGS]
+        ) {
+            throw new OptionsException(sprintf('Option "%s" does not contain flags.', $name));
+        }
+        if (array_key_exists(Conf::KEY_FLAGS, $this->options[$name])
+            && !in_array($char, $this->options[$name][Conf::KEY_FLAGS])
+        ) {
+            throw new OptionsException(sprintf('Flag "%s" is not valid for option "%s".', $char, $name));
+        }
+        $value = $this->get($name);
+        return $value === null
+            ? false
+            : strpos($value, $char) !== false;
+    }
+
+    /**
      * {@inheritdoc}
      *
      * @return Generator
