@@ -9,10 +9,13 @@ namespace Jhofm\PhPuml\Options;
  */
 final class OptionConfiguration
 {
-    public const KEY_NAME = 'name';
     public const KEY_DESCRIPTION = 'description';
+    public const KEY_FLAGS = 'flags';
+    public const KEY_IS_ARRAY = 'is-array';
+    public const KEY_IS_FLAGS = 'is-flags';
+    public const KEY_NAME = 'name';
     public const KEY_NAME_SHORT = 'name-short';
     public const KEY_VALUE = 'value';
-    public const KEY_IS_ARRAY = 'is-array';
     public const KEY_VALUES = 'values';
+    public const VALUE_TYPES_SHORT = 'short';
 }

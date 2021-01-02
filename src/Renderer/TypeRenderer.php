@@ -17,10 +17,11 @@ class TypeRenderer
      * Render a type name
      *
      * @param Node|null $type
+     * @param bool $namespaced
      *
      * @return string
      */
-    public function render(?Node $type): string
+    public function render(?Node $type, bool $namespaced = true): string
     {
         if ($type === null) {
             return 'UNKNOWN-TYPE';
@@ -32,14 +33,20 @@ class TypeRenderer
             $type = $type->type;
         }
         if ($type instanceof Name) {
-            $string = $type->toCodeString();
+            $type = $type->toCodeString();
         } else {
-            $string = (string) $type;
+            $type = (string) $type;
         }
-        $string = str_replace('\\', '\\\\', $string);
+
+        // shorten type for short mode if namespaced
+        if (!$namespaced && strpos($type, '\\') !== false) {
+            $type = substr($type, (strrpos($type, '\\') + 1));
+        }
+
+        $type = str_replace('\\', '\\\\', $type);
         if ($isNullable) {
-            $string .= ' = null';
+            $type .= ' = null';
         }
-        return $string;
+        return $type;
     }
 }

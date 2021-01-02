@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Jhofm\PhPuml\Renderer;
 
+use Jhofm\PhPuml\Options\Options;
+use Jhofm\PhPuml\Options\OptionsException;
 use PhpParser\Comment;
 use PhpParser\Node\Param;
 use PhpParser\Node\Stmt;
@@ -31,15 +33,19 @@ class ClassLikeRenderer
     ];
     /** @var TypeRenderer  */
     private $typeRenderer;
+    /** @var Options  */
+    private $options;
 
     /**
      * ClassLikeRenderer constructor.
      *
      * @param TypeRenderer $typeRenderer
+     * @param Options $options
      */
-    public function __construct(TypeRenderer $typeRenderer)
+    public function __construct(TypeRenderer $typeRenderer, Options $options)
     {
         $this->typeRenderer = $typeRenderer;
+        $this->options = $options;
     }
 
     /**
@@ -68,6 +74,7 @@ class ClassLikeRenderer
      * @param ClassLike $node
      *
      * @return string
+     * @throws RendererException
      */
     private function renderClassLikeHeader(ClassLike $node): string
     {
@@ -76,7 +83,10 @@ class ClassLikeRenderer
             $puml .= 'abstract ';
         }
         $puml .= $this->typeMap[get_class($node)] . ' ';
-        $className = $this->typeRenderer->render(property_exists($node, 'namespacedName') ? $node->namespacedName : null);
+        $className = $this->typeRenderer->render(
+            property_exists($node, 'namespacedName') ? $node->namespacedName : null,
+            $this->renderNamespace($node)
+        );
         $puml .= $className . ' ';
         if ($node instanceof Class_ && $node->isFinal()) {
             $puml .= '<<leaf>> ';
@@ -85,16 +95,7 @@ class ClassLikeRenderer
             $puml .= '<<trait>> ';
         }
         $puml .= $this->renderExtends($node);
-        if (property_exists($node, 'implements') && !empty($node->implements)) {
-            $puml .= 'implements ';
-            foreach ($node->implements as $index => $name) {
-                $puml .= $this->typeRenderer->render($name);
-                if ($index < (count($node->implements) - 1)) {
-                    $puml .= ', ';
-                }
-            }
-            $puml .= ' ';
-        }
+        $puml .= $this->renderImplements($node);
         $puml .= '{';
         return $puml;
     }
@@ -135,6 +136,9 @@ class ClassLikeRenderer
                 $match = [];
                 if (preg_match('~@var\s+([^\s\[\]]+)(\[\])?~', (string) $comment, $match)) {
                     $propertyType = $match[1];
+                    if (!$this->renderNamepaceForFlag('p') && strpos($propertyType, '\\') !== false) {
+                        $propertyType = substr($propertyType, (strrpos($propertyType, '\\') + 1));
+                    }
                     if (isset($match[2])) {
                         $propertyType = 'array<' . $propertyType . '>';
                     }
@@ -205,7 +209,7 @@ class ClassLikeRenderer
             $paramName = (string) $param->var->name;
             $paramType = $param->type === null
                 ? 'mixed'
-                : $this->typeRenderer->render($param->type);
+                : $this->typeRenderer->render($param->type, $this->renderNamepaceForFlag('m'));
             $puml .= $paramName . ':' . $paramType;
             if ($index < (count($params) - 1)) {
                 $puml .= ', ';
@@ -213,7 +217,7 @@ class ClassLikeRenderer
         }
         $puml .= ')';
         if ($method->getReturnType() !== null) {
-            $puml .= ':' . $this->typeRenderer->render($method->getReturnType());
+            $puml .= ':' . $this->typeRenderer->render($method->getReturnType(), $this->renderNamepaceForFlag('m'));
         }
         return $puml;
     }
@@ -253,19 +257,26 @@ class ClassLikeRenderer
      * @param ClassLike $node
      *
      * @return string
+     * @throws RendererException
      */
     private function renderExtends(ClassLike $node): string
     {
         $puml = '';
         $extends = [];
         if (property_exists($node, 'extends') && !empty($node->extends)) {
-            $extends[] = $this->typeRenderer->render(is_array($node->extends) ? $node->extends[0] : $node->extends);
+            if (is_array($node->extends)) {
+                foreach ($node->extends as $extend) {
+                    $extends[] = $this->typeRenderer->render($extend, $this->renderNamespace($node));
+                }
+            } else {
+                $extends[] = $this->typeRenderer->render($node->extends, $this->renderNamespace($node));
+            }
         }
         if ($node instanceof Class_) {
             foreach ($node->stmts as $stmt) {
                 if ($stmt instanceof TraitUse) {
                     foreach ($stmt->traits as $trait) {
-                        $extends[] = $this->typeRenderer->render($trait);
+                        $extends[] = $this->typeRenderer->render($trait, $this->renderNamepaceForFlag('t'));
                     }
                 }
             }
@@ -281,5 +292,77 @@ class ClassLikeRenderer
             $puml .= ' ';
         }
         return $puml;
+    }
+
+    /**
+     * @param ClassLike $node
+     *
+     * @return string
+     * @throws RendererException
+     */
+    private function renderImplements(ClassLike $node): string
+    {
+        $puml = '';
+        if (property_exists($node, 'implements') && !empty($node->implements)) {
+            $puml .= 'implements ';
+            foreach ($node->implements as $index => $name) {
+                $puml .= $this->typeRenderer->render($name, $this->renderNamepaceForFlag('i'));
+                if ($index < (count($node->implements) - 1)) {
+                    $puml .= ', ';
+                }
+            }
+            $puml .= ' ';
+        }
+        return $puml;
+    }
+
+    /**
+     * @param ClassLike $node
+     *
+     * @return bool
+     * @throws RendererException
+     */
+    private function renderNamespace(ClassLike $node): bool
+    {
+        return $this->renderNamepaceForFlag($this->getTypeFlag($node));
+    }
+
+    /**
+     * @param string $flag
+     *
+     * @return bool
+     * @throws RendererException
+     */
+    private function renderNamepaceForFlag(string $flag): bool
+    {
+        try {
+            return $this->options->hasFlag('namespaced-types', $flag);
+        } catch (OptionsException $e) {
+            throw new RendererException(
+                sprintf('Unable to determine if namespace should be rendered for flag "%s".', $flag),
+                1609624689,
+                $e
+            );
+        }
+    }
+
+    /**
+     * @param ClassLike $node
+     *
+     * @return string
+     * @throws RendererException
+     */
+    private function getTypeFlag(ClassLike $node): string
+    {
+        switch (get_class($node)) {
+            case Class_::class:
+                return 'c';
+            case Interface_::class:
+                return 'i';
+            case Trait_::class:
+                return 't';
+            default:
+                throw new RendererException(sprintf('Unable to determine flag for class "%s".', get_class($node)));
+        }
     }
 }

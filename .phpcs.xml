@@ -232,5 +232,7 @@
     <rule ref="PEAR.Files.IncludingFile.UseInclude">
         <severity>0</severity>
     </rule>
-
+    <rule ref="PEAR.WhiteSpace.ScopeIndent.IncorrectExact">
+        <severity>0</severity>
+    </rule>
 </ruleset>

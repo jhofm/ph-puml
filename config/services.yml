@@ -31,17 +31,17 @@ services:
           name-short: e
           is-array: true
           value: ['~(?:^|[\\/])vendor[\\/]~']
-          description: include regex patterns (at least one must match file path)
+          description: Include regex patterns (at least one must match a file path for it to be parsed).
         include:
           name-short: i
           is-array: true
           value: ['/\.php$/']
-          description: exclude regex patterns (none may match file path)
+          description: Exclude regex patterns (file paths matching any are not parsed).
         format:
           name-short: f
           is-array: false
           value: puml
-          description: diagram output format. all formats apart from puml (the default) require the package jawira/plantuml to be present.
+          description: Diagram output format. All formats apart from puml (the default) require the package jawira/plantuml to be present or a path to a local plantuml.jar file.
           values:
             - puml
             - latex
@@ -58,7 +58,20 @@ services:
           name-short: p
           is-array: false
           value: '%plantuml.executable%'
-          description: path to a local plantuml.jar executable. this can be used to output PlantUML output formats without installing the jawira/plantuml package.
+          description: Path to a local plantuml.jar executable. This can be used to output PlantUML output formats without installing the jawira/plantuml package.
+        namespaced-types:
+          name-short: t
+          is-array: false
+          is-flags: true
+          flags:
+            - c
+            - i
+            - t
+            - m
+            - p
+          value: cit
+          description: "Define which types should be rendered with full namespaces. This option accepts a string containing characters that indicated the namespaced types:: i: interfaces, c: classes, t: traits, m: method arguments, p: properties."
+
   Jhofm\PhPuml\Formatter\Formatter:
     arguments:
       - '@Jhofm\PhPuml\Options\Options'

@@ -22,13 +22,9 @@ Here's a class diagram of the tool, created by itself:
  * Generates inheritance relationships for classes, interfaces and traits
  * Generates class properties & method signatures, including type hints from @var doc comments
  * Dependencies are inferred from constructor argument types (assumes dependency injection)
- * Associations are inferred from "new" expressions (\<\<creates\>\>) and "throw" statements (\<\<throws\>\>)   
+ * Associations are inferred from "new" expressions (\<\<creates\>\>) and "throw" statements (\<\<throws\>\>)
+ * Types renderable with fully qualified or short names (independently configurable for interfaces, traits, classes, properties and method arguments)   
  * Works on Linux (tested), Windows (tested), macOS (probably)
-
-## Requirements
-
- * PHP 7.4 only for now
- * Composer 2
 
 ## Installation
 
@@ -93,7 +89,7 @@ You also need to either:
 - provide a path to a `plantuml.jar` file
 
 ```bash
-$ ph-puml /my/code/dir --plantuml-path /somedir/plantuml.jar --format svg > ~/mycode.svg
+$ ph-puml /my/code/dir -p /somedir/plantuml.jar -f svg > ~/mycode.svg
 ```
 
  - or install the optional [jawira/plantuml](https://packagist.org/packages/jawira/plantuml) package
@@ -102,7 +98,7 @@ $ ph-puml /my/code/dir --plantuml-path /somedir/plantuml.jar --format svg > ~/my
 $ composer create-project jhofm/ph-puml
 $ cd ph-puml
 $ composer require jawira/plantuml
-$ ph-puml /my/code/dir --format svg > ~/mycode.svg
+$ ph-puml /my/code/dir -f svg > ~/mycode.svg
 ```
 
 ### Path filters
@@ -112,17 +108,32 @@ By default, files in the directory tree with the file extension `.php` are inclu
  
 You can override the filter rules with command line options. All rules are regular expressions. You can use several at the same time.
 For example the following command will NOT skip files from `vendor` folders, and analyze files in the `includes` folder with the file extension `.inc` as well.  
+
 ```bash
-$ ph-puml --exclude --include "/\.php$/" --include "/^includes/.*\.inc$/"
+$ ph-puml -e -i "/\.php$/" -i "/^includes/.*\.inc$/"
 ```
 
 The command will fail when attempting to parse files that do not contain valid PHP code.
-   
+
+### Namespaces
+
+Namespaced classes, interfaces and traits are rendered with fully qualified names by default, while property and method argument types are not. 
+This behaviour can be customized using the `namespaced-types`/`t` option.
+
+```bash
+$ ph-puml -t citmp # render all types as FQNs
+$ ph-puml -t # short types only
+$ ph-puml -t c # only classes as FQNs  
+```
+
+### Help   
 PhPuml uses `symfony/command`, so a help page including all supported arguments and options is available.   
 
 ```bash
 $ ph-puml -h
 ```
+
+Omitting namespaces for classes, interfaces or traits may cause relations to be drawn wrong if unqualified type names are repeated in the analyzed sources.
 
 ## Limitations
 
