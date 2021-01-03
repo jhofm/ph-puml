@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Jhofm\PhPuml\Relation;
 
-use Jhofm\PhPuml\Renderer\TypeRenderer;
+use Jhofm\PhPuml\Options\OptionsException;
 use PhpParser\Node;
 use PhpParser\Node\Expr;
 use PhpParser\Node\Expr\New_;
@@ -22,25 +22,26 @@ class RelationInferrer
 {
     /** @var NodeFinder */
     private $nodeFinder;
-    /** @var TypeRenderer */
-    private $typeRenderer;
+    /** @var TypeGuard */
+    private $typeGuard;
 
     /**
      * RelationInferrer constructor.
      *
      * @param NodeFinder $nodeFinder
-     * @param TypeRenderer $typeRenderer
+     * @param TypeGuard $typeGuard
      */
-    public function __construct(NodeFinder $nodeFinder, TypeRenderer $typeRenderer)
+    public function __construct(NodeFinder $nodeFinder, TypeGuard $typeGuard)
     {
         $this->nodeFinder = $nodeFinder;
-        $this->typeRenderer = $typeRenderer;
+        $this->typeGuard = $typeGuard;
     }
 
     /**
      * @param ClassLike $node
      *
      * @return Relation[]
+     * @throws OptionsException
      */
     public function inferRelations(ClassLike $node): array
     {
@@ -59,26 +60,26 @@ class RelationInferrer
         );
         $thrown = [];
         foreach ($relationExpressions['Expr_StaticCall'] as $type) {
-            $relations[] = new Relation($node->namespacedName, $type, Relation::RELATION_TYPE_ASSOCIATION, 'use');
+            $relations[] = new Relation($node, $type, Relation::RELATION_TYPE_ASSOCIATION, 'use');
         }
         foreach ($relationExpressions['Expr_StaticPropertyFetch'] as $type) {
-            $relations[] = new Relation($node->namespacedName, $type, Relation::RELATION_TYPE_ASSOCIATION, 'use');
+            $relations[] = new Relation($node, $type, Relation::RELATION_TYPE_ASSOCIATION, 'use');
         }
         foreach ($relationExpressions['Stmt_Throw'] as $type) {
-            $relations[] = new Relation($node->namespacedName, $type, Relation::RELATION_TYPE_ASSOCIATION, 'throw');
+            $relations[] = new Relation($node, $type, Relation::RELATION_TYPE_ASSOCIATION, 'throw');
             $thrown[] = (string) $type;
         }
         foreach ($relationExpressions['Expr_New'] as $type) {
             // do not add types created in throw statement as created
             if (!in_array((string) $type, $thrown)) {
-                $relations[] = new Relation($node->namespacedName, $type, Relation::RELATION_TYPE_ASSOCIATION, 'create');
+                $relations[] = new Relation($node, $type, Relation::RELATION_TYPE_ASSOCIATION, 'create');
             }
         }
         foreach ($this->getExtensions($node) as $type) {
-            $relations[] = new Relation($node->namespacedName, $type, Relation::RELATION_TYPE_EXTENSION);
+            $relations[] = new Relation($node, $type, Relation::RELATION_TYPE_EXTENSION);
         }
         foreach ($this->getImplementations($node) as $type) {
-            $relations[] = new Relation($node->namespacedName, $type, Relation::RELATION_TYPE_IMPLEMENTATION);
+            $relations[] = new Relation($node, $type, Relation::RELATION_TYPE_IMPLEMENTATION);
         }
         return $relations;
     }
@@ -87,14 +88,19 @@ class RelationInferrer
      * @param ClassLike $node
      *
      * @return array
+     * @throws OptionsException
      */
     private function getExtensions(ClassLike $node): array
     {
         $extends = [];
         if (property_exists($node, 'extends') && !empty($node->extends)) {
             if (is_array($node->extends)) {
-                $extends = $node->extends;
-            } else {
+                foreach ($node->extends as $extend) {
+                    if ($this->typeGuard->isTypeIncluded($extend)) {
+                        $extends[] = $extend;
+                    }
+                }
+            } elseif ($node->extends instanceof Name && $this->typeGuard->isTypeIncluded($node->extends)) {
                 $extends[] = $node->extends;
             }
         }
@@ -107,7 +113,11 @@ class RelationInferrer
             );
             /** @var TraitUse $traitUse */
             foreach ($traitUses as $traitUse) {
-                $extends = array_merge($extends, $traitUse->traits);
+                foreach ($traitUse->traits as $trait) {
+                    if ($this->typeGuard->isTypeIncluded($trait)) {
+                        $extends[] = $trait;
+                    }
+                }
             }
         }
         return $extends;
@@ -117,12 +127,17 @@ class RelationInferrer
      * @param ClassLike $node
      *
      * @return array
+     * @throws OptionsException
      */
     private function getImplementations(ClassLike $node): array
     {
         $implements = [];
         if (property_exists($node, 'implements') && !empty($node->implements)) {
-            $implements = $node->implements;
+            foreach ($node->implements as $implement) {
+                if ($this->typeGuard->isTypeIncluded($implement)) {
+                    $implements[] = $implement;
+                }
+            }
         }
         return $implements;
     }
@@ -133,6 +148,7 @@ class RelationInferrer
      * @param Node $node
      *
      * @return Node[] $types
+     * @throws OptionsException
      */
     private function getConstructorArgumentTypes(Node $node): array
     {
@@ -151,7 +167,10 @@ class RelationInferrer
         $types = [];
         /** @var ClassMethod $constructor */
         foreach ($constructor->params as $param) {
-            if (property_exists($param, 'type') && $param->type instanceof Name) {
+            if (property_exists($param, 'type')
+                && $param->type instanceof Name
+                && $this->typeGuard->isTypeIncluded($param->type)
+            ) {
                 $types[(string) $param->type] = $param->type;
             }
         }
@@ -165,6 +184,7 @@ class RelationInferrer
      * @param array $types classnames of nodes to find
      *
      * @return Node[] $types
+     * @throws OptionsException
      */
     private function getTypesFromNodeTypes(ClassLike $node, array $types): array
     {
@@ -184,8 +204,10 @@ class RelationInferrer
         );
         foreach ($nodesOfType as $nodeOfType) {
             $type = $this->getNodeTypeName($nodeOfType);
-            if ($type !== null) {
-                $result[$nodeOfType->getType()][$this->typeRenderer->render($type)] = $type;
+            if ($type !== null
+                && $this->typeGuard->isTypeIncluded($type)
+            ) {
+                $result[$nodeOfType->getType()][(string) $type] = $type;
             }
         }
         return $result;
@@ -195,6 +217,7 @@ class RelationInferrer
      * @param Node $node
      *
      * @return Name|null
+     * @throws OptionsException
      */
     private function getNodeTypeName(Node $node): ?Name
     {
@@ -206,8 +229,11 @@ class RelationInferrer
             }
         } elseif ($node instanceof Expr && property_exists($node, 'class')) {
             $type = $node->class;
-            // ignore self/parent/static types for now
-            if ($type instanceof Name && !$type->isSpecialClassName()) {
+            if ($type instanceof Name
+                // ignore self/parent/static types for now
+                && !$type->isSpecialClassName()
+                &&  $this->typeGuard->isTypeIncluded($type)
+            ) {
                 return $type;
             }
         }

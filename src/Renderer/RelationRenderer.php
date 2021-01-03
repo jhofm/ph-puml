@@ -24,22 +24,22 @@ class RelationRenderer
      * RelationRenderer constructor.
      *
      * @param TypeRenderer $typeRenderer
-     * @param Options $options
      */
-    public function __construct(TypeRenderer $typeRenderer, Options $options)
+    public function __construct(TypeRenderer $typeRenderer)
     {
         $this->typeRenderer = $typeRenderer;
-        $this->options = $options;
     }
 
     /**
      * @param array $relations
+     * @param Options $options
      *
      * @return string
      * @throws RendererException
      */
-    public function renderRelations(array $relations): string
+    public function renderRelations(array $relations, Options $options): string
     {
+        $this->options = $options;
         $string = '';
         foreach ($relations as $relation) {
             $this->appendLine($string, $this->render($relation));

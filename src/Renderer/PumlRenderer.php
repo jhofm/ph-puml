@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace Jhofm\PhPuml\Renderer;
 
+use Jhofm\PhPuml\Options\Options;
+use Jhofm\PhPuml\Options\OptionsException;
 use Jhofm\PhPuml\Relation\Relation;
 use PhpParser\Node\Stmt\ClassLike;
 
@@ -12,22 +14,30 @@ use PhpParser\Node\Stmt\ClassLike;
  */
 class PumlRenderer
 {
-    private const PUML_HEADER = "@startuml\n\nset namespaceSeparator \\\\\n\n";
-    private const PUML_FOOTER = "\n@enduml\n";
-
     /** @var string */
     private $buffer = '';
+    /** @var ClassLikeRenderer  */
+    private $classLikeRenderer;
+    /** @var RelationRenderer  */
+    private $relationRenderer;
+    /** @var Options */
+    private $options;
 
     /**
      * PumlRenderer constructor.
      *
      * @param ClassLikeRenderer $classLikeRenderer
      * @param RelationRenderer $relationRenderer
+     * @param Options $options
      */
-    public function __construct(ClassLikeRenderer $classLikeRenderer, RelationRenderer $relationRenderer)
-    {
+    public function __construct(
+        ClassLikeRenderer $classLikeRenderer,
+        RelationRenderer $relationRenderer,
+        Options $options
+    ) {
         $this->classLikeRenderer = $classLikeRenderer;
         $this->relationRenderer = $relationRenderer;
+        $this->options = $options;
     }
 
     /**
@@ -36,9 +46,9 @@ class PumlRenderer
      * @throws RendererException
      * @return void
      */
-    public function addClassLike(ClassLike $classLike): void
+    public function renderClassLike(ClassLike $classLike): void
     {
-        $this->buffer .= $this->classLikeRenderer->render($classLike);
+        $this->buffer .= $this->classLikeRenderer->render($classLike, $this->options);
     }
 
     /**
@@ -47,18 +57,23 @@ class PumlRenderer
      * @throws RendererException
      * @return void
      */
-    public function addRelations(array $relations): void
+    public function renderRelations(array $relations): void
     {
-        $this->buffer .= $this->relationRenderer->renderRelations($relations);
+        $this->buffer .= $this->relationRenderer->renderRelations($relations, $this->options);
     }
 
     /**
      * @return string
+     * @throws OptionsException
      */
     public function getPuml(): string
     {
-        return self::PUML_HEADER
-            . $this->buffer
-            . self::PUML_FOOTER;
+        $puml = "@startuml\n\n";
+        if ($this->options->hasFlag('namespaced-types', 'c')) {
+            $puml .= "set namespaceSeparator \\\\\n\n";
+        }
+        $puml .= $this->buffer;
+        $puml .= "\n@enduml\n";
+        return $puml;
     }
 }

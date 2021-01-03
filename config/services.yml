@@ -30,7 +30,7 @@ services:
       - exclude:
           name-short: e
           is-array: true
-          value: ['~(?:^|[\\/])vendor[\\/]~']
+          value: ['~^vendor[\\/]~']
           description: Include regex patterns (at least one must match a file path for it to be parsed).
         include:
           name-short: i
@@ -65,12 +65,15 @@ services:
           is-flags: true
           flags:
             - c
-            - i
-            - t
             - m
             - p
           value: cit
           description: "Define which types should be rendered with full namespaces. This option accepts a string containing characters that indicated the namespaced types:: i: interfaces, c: classes, t: traits, m: method arguments, p: properties."
+        include-external-types:
+          name-short: x
+          is-array: false
+          value: false
+          description: "Render relations to types that are not part of the analyzed source files?"
 
   Jhofm\PhPuml\Formatter\Formatter:
     arguments:

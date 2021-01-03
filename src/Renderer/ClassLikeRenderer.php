@@ -7,6 +7,8 @@ namespace Jhofm\PhPuml\Renderer;
 use Jhofm\PhPuml\Options\Options;
 use Jhofm\PhPuml\Options\OptionsException;
 use PhpParser\Comment;
+use PhpParser\Node\Identifier;
+use PhpParser\Node\Name;
 use PhpParser\Node\Param;
 use PhpParser\Node\Stmt;
 use PhpParser\Node\Stmt\Class_;
@@ -15,7 +17,6 @@ use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\Interface_;
 use PhpParser\Node\Stmt\Property;
 use PhpParser\Node\Stmt\Trait_;
-use PhpParser\Node\Stmt\TraitUse;
 use PhpParser\Node\VarLikeIdentifier;
 
 /**
@@ -40,24 +41,24 @@ class ClassLikeRenderer
      * ClassLikeRenderer constructor.
      *
      * @param TypeRenderer $typeRenderer
-     * @param Options $options
      */
-    public function __construct(TypeRenderer $typeRenderer, Options $options)
+    public function __construct(TypeRenderer $typeRenderer)
     {
         $this->typeRenderer = $typeRenderer;
-        $this->options = $options;
     }
 
     /**
      * Render a ClassLike Node as PlantUML
      *
      * @param ClassLike $node
+     * @param Options $options
      *
      * @return string
      * @throws RendererException
      */
-    public function render(ClassLike $node): string
+    public function render(ClassLike $node, Options $options): string
     {
+        $this->options = $options;
         $puml = '';
         $this->indentation = 0;
         $this->appendLine($puml, $this->renderClassLikeHeader($node));
@@ -83,10 +84,7 @@ class ClassLikeRenderer
             $puml .= 'abstract ';
         }
         $puml .= $this->typeMap[get_class($node)] . ' ';
-        $className = $this->typeRenderer->render(
-            property_exists($node, 'namespacedName') ? $node->namespacedName : null,
-            $this->shouldRenderNamespace($node)
-        );
+        $className = $this->typeRenderer->render($node, $this->renderNamepaceForFlag('c'));
         $puml .= $className . ' ';
         if ($node instanceof Class_ && $node->isFinal()) {
             $puml .= '<<leaf>> ';
@@ -198,8 +196,9 @@ class ClassLikeRenderer
         }
         $puml .= $this->renderVisibility($method);
         if ((string) $method->name === '__construct') {
-            $puml .= '<<create>> ' . $this->typeRenderer->render($classLike->name, false) . ' ';
+            $puml .= '<<create>> ' . $this->typeRenderer->render($classLike, false) . ' ';
         } elseif ($method->isStatic()
+            && ($method->getReturnType() instanceof Name || $method->getReturnType() instanceof Identifier)
             && $method->getReturnType()->isSpecialClassName()
             && in_array((string) $method->getReturnType(), ['self', 'static'])
         ) {
@@ -257,17 +256,6 @@ class ClassLikeRenderer
     }
 
     /**
-     * @param ClassLike $node
-     *
-     * @return bool
-     * @throws RendererException
-     */
-    private function shouldRenderNamespace(ClassLike $node): bool
-    {
-        return $this->renderNamepaceForFlag($this->getTypeFlag($node));
-    }
-
-    /**
      * @param string $flag
      *
      * @return bool
@@ -283,26 +271,6 @@ class ClassLikeRenderer
                 1609624689,
                 $e
             );
-        }
-    }
-
-    /**
-     * @param ClassLike $node
-     *
-     * @return string
-     * @throws RendererException
-     */
-    private function getTypeFlag(ClassLike $node): string
-    {
-        switch (get_class($node)) {
-            case Class_::class:
-                return 'c';
-            case Interface_::class:
-                return 'i';
-            case Trait_::class:
-                return 't';
-            default:
-                throw new RendererException(sprintf('Unable to determine flag for class "%s".', get_class($node)));
         }
     }
 }
