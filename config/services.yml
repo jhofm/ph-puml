@@ -20,7 +20,7 @@ services:
   PhpParser\NodeFinder:
   PhpParser\NodeTraverser:
     calls:
-      - addVisitor: ['@Jhofm\PhPuml\NodeVisitor\NameResolver']
+      - addVisitor: ['@Jhofm\PhPuml\NodeParser\NameResolver']
 
   Jhofm\PhPuml\:
     resource: '../src/*'

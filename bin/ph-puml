@@ -41,7 +41,7 @@ $container = (function (): Container {
         $containerBuilder->setParameter('root-dir', dirname(__DIR__));
         $containerBuilder->compile();
         // do not cache DI container when running as a PHAR
-        if (Phar::running() === 0) {
+        if (!Phar::running()) {
             file_put_contents($cachePath, (new PhpDumper($containerBuilder))->dump());
         } else {
             return $containerBuilder;

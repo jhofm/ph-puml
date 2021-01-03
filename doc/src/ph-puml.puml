@@ -1,6 +1,6 @@
 @startuml
-        
-set namespaceSeparator \\ 
+
+set namespaceSeparator \\
 
 class Jhofm\\PhPuml\\CodeProvider\\CodeProvider {
   -options:Options
@@ -15,7 +15,7 @@ Jhofm\\PhPuml\\CodeProvider\\CodeProvider ..> \\Jhofm\\PhPuml\\CodeProvider\\Cod
 Jhofm\\PhPuml\\CodeProvider\\CodeProvider ..> \\League\\Flysystem\\Filesystem : creates
 Jhofm\\PhPuml\\CodeProvider\\CodeProvider ..> \\League\\Flysystem\\Local\\LocalFilesystemAdapter : creates
 
-class Jhofm\\PhPuml\\CodeProvider\\CodeProviderException extends \\Jhofm\\PhPuml\\Exception\\PhPumlException {
+class Jhofm\\PhPuml\\CodeProvider\\CodeProviderException extends \\Jhofm\\PhPuml\\PhPumlException {
 }
 
 class Jhofm\\PhPuml\\Command\\ClassDiagramCommand extends \\Symfony\\Component\\Console\\Command\\Command {
@@ -31,10 +31,7 @@ class Jhofm\\PhPuml\\Command\\ClassDiagramCommand extends \\Symfony\\Component\\
 Jhofm\\PhPuml\\Command\\ClassDiagramCommand --> \\Jhofm\\PhPuml\\Service\\PhPuml
 Jhofm\\PhPuml\\Command\\ClassDiagramCommand --> \\Jhofm\\PhPuml\\Options\\Options
 Jhofm\\PhPuml\\Command\\ClassDiagramCommand --> \\Jhofm\\PhPuml\\Formatter\\Formatter
-Jhofm\\PhPuml\\Command\\ClassDiagramCommand ..> \\Jhofm\\PhPuml\\Exception\\PhPumlException : throws
-
-class Jhofm\\PhPuml\\Exception\\PhPumlException extends \\Exception {
-}
+Jhofm\\PhPuml\\Command\\ClassDiagramCommand ..> \\Jhofm\\PhPuml\\PhPumlException : throws
 
 class Jhofm\\PhPuml\\Formatter\\Formatter implements \\Jhofm\\PhPuml\\Formatter\\FormatterInterface {
   -formatters:array<FormatterInterface>
@@ -49,7 +46,7 @@ class Jhofm\\PhPuml\\Formatter\\Formatter implements \\Jhofm\\PhPuml\\Formatter\
 Jhofm\\PhPuml\\Formatter\\Formatter --> \\Jhofm\\PhPuml\\Options\\Options
 Jhofm\\PhPuml\\Formatter\\Formatter ..> \\Jhofm\\PhPuml\\Formatter\\FormatterException : throws
 
-class Jhofm\\PhPuml\\Formatter\\FormatterException extends \\Jhofm\\PhPuml\\Exception\\PhPumlException {
+class Jhofm\\PhPuml\\Formatter\\FormatterException extends \\Jhofm\\PhPuml\\PhPumlException {
 }
 
 interface Jhofm\\PhPuml\\Formatter\\FormatterInterface {
@@ -74,7 +71,7 @@ Jhofm\\PhPuml\\Formatter\\PlantUmlFormatterStrategy --> \\Jhofm\\PhPuml\\Options
 Jhofm\\PhPuml\\Formatter\\PlantUmlFormatterStrategy ..> \\Jhofm\\PhPuml\\Formatter\\FormatterException : throws
 Jhofm\\PhPuml\\Formatter\\PlantUmlFormatterStrategy ..> \\Symfony\\Component\\Process\\Process : creates
 
-class Jhofm\\PhPuml\\NodeVisitor\\NameResolver extends \\PhpParser\\NodeVisitor\\NameResolver {
+class Jhofm\\PhPuml\\NodeParser\\NameResolver extends \\PhpParser\\NodeVisitor\\NameResolver {
   +__construct()
   +enterNode(node:Node)
   -addAlias(use:UseUse, type:mixed, prefix:Name)
@@ -83,9 +80,26 @@ class Jhofm\\PhPuml\\NodeVisitor\\NameResolver extends \\PhpParser\\NodeVisitor\
   -resolveAttributes(node:Property)
 }
 
-Jhofm\\PhPuml\\NodeVisitor\\NameResolver ..> \\PhpParser\\Node\\Name : uses
-Jhofm\\PhPuml\\NodeVisitor\\NameResolver ..> \\PhpParser\\BuilderHelpers : uses
-Jhofm\\PhPuml\\NodeVisitor\\NameResolver ..> \\PhpParser\\Comment\\Doc : creates
+Jhofm\\PhPuml\\NodeParser\\NameResolver ..> \\PhpParser\\Node\\Name : uses
+Jhofm\\PhPuml\\NodeParser\\NameResolver ..> \\PhpParser\\BuilderHelpers : uses
+Jhofm\\PhPuml\\NodeParser\\NameResolver ..> \\PhpParser\\Comment\\Doc : creates
+
+class Jhofm\\PhPuml\\NodeParser\\NodeParser {
+  -phpParser:Parser
+  -nodeFinder:NodeFinder
+  -namespaceTraverser:NodeTraverser
+  
+  +__construct(phpParser:Parser, nodeFinder:NodeFinder, namespaceTraverser:NodeTraverser)
+  +getClassLikes(path:string, code:string):array
+}
+
+Jhofm\\PhPuml\\NodeParser\\NodeParser --> \\PhpParser\\Parser
+Jhofm\\PhPuml\\NodeParser\\NodeParser --> \\PhpParser\\NodeFinder
+Jhofm\\PhPuml\\NodeParser\\NodeParser --> \\PhpParser\\NodeTraverser
+Jhofm\\PhPuml\\NodeParser\\NodeParser ..> \\Jhofm\\PhPuml\\NodeParser\\NodeParserException : throws
+
+class Jhofm\\PhPuml\\NodeParser\\NodeParserException extends \\Jhofm\\PhPuml\\PhPumlException {
+}
 
 class Jhofm\\PhPuml\\Options\\Option <<leaf>> implements \\Jhofm\\PhPuml\\Options\\OptionInterface {
   -config:array
@@ -134,7 +148,7 @@ class Jhofm\\PhPuml\\Options\\Options <<leaf>> implements \\JsonSerializable, \\
 Jhofm\\PhPuml\\Options\\Options ..> \\Jhofm\\PhPuml\\Options\\OptionsException : throws
 Jhofm\\PhPuml\\Options\\Options ..> \\Jhofm\\PhPuml\\Options\\Option : creates
 
-class Jhofm\\PhPuml\\Options\\OptionsException extends \\Jhofm\\PhPuml\\Exception\\PhPumlException {
+class Jhofm\\PhPuml\\Options\\OptionsException extends \\Jhofm\\PhPuml\\PhPumlException {
 }
 
 class Jhofm\\PhPuml\\Relation\\Relation {
@@ -164,7 +178,7 @@ class Jhofm\\PhPuml\\Relation\\RelationInferrer {
   +inferRelations(node:ClassLike):array
   -getConstructorArgumentTypes(node:Node):array
   -getTypesFromNodeTypes(node:ClassLike, types:array):array
-  -getTypeFromNode(nodeOfType:Node):Name = null
+  -getNodeTypeName(node:Node):Name = null
 }
 
 Jhofm\\PhPuml\\Relation\\RelationInferrer --> \\PhpParser\\NodeFinder
@@ -202,6 +216,18 @@ abstract class Jhofm\\PhPuml\\Renderer\\IndentedRenderTrait <<trait>> {
   -appendLine(puml:string, line:string):void
 }
 
+class Jhofm\\PhPuml\\Renderer\\PumlRenderer {
+  -buffer:string
+  
+  +__construct(classLikeRenderer:ClassLikeRenderer, relationRenderer:RelationRenderer)
+  +addClassLike(classLike:ClassLike):void
+  +addRelations(relations:array):void
+  +getPuml():string
+}
+
+Jhofm\\PhPuml\\Renderer\\PumlRenderer --> \\Jhofm\\PhPuml\\Renderer\\ClassLikeRenderer
+Jhofm\\PhPuml\\Renderer\\PumlRenderer --> \\Jhofm\\PhPuml\\Renderer\\RelationRenderer
+
 class Jhofm\\PhPuml\\Renderer\\RelationRenderer extends \\Jhofm\\PhPuml\\Renderer\\IndentedRenderTrait {
   -typeRenderer:TypeRenderer
   -options:Options
@@ -217,7 +243,7 @@ Jhofm\\PhPuml\\Renderer\\RelationRenderer --> \\Jhofm\\PhPuml\\Renderer\\TypeRen
 Jhofm\\PhPuml\\Renderer\\RelationRenderer --> \\Jhofm\\PhPuml\\Options\\Options
 Jhofm\\PhPuml\\Renderer\\RelationRenderer ..> \\Jhofm\\PhPuml\\Renderer\\RendererException : throws
 
-class Jhofm\\PhPuml\\Renderer\\RendererException extends \\Jhofm\\PhPuml\\Exception\\PhPumlException {
+class Jhofm\\PhPuml\\Renderer\\RendererException extends \\Jhofm\\PhPuml\\PhPumlException {
 }
 
 class Jhofm\\PhPuml\\Renderer\\TypeRenderer {
@@ -225,25 +251,19 @@ class Jhofm\\PhPuml\\Renderer\\TypeRenderer {
 }
 
 class Jhofm\\PhPuml\\Service\\PhPuml {
-  -parser:Parser
-  -namespaceTraverser:NodeTraverser
   -codeProvider:CodeProvider
-  -nodeFinder:NodeFinder
-  -classLikeRenderer:ClassLikeRenderer
   -relationInferrer:RelationInferrer
-  -relationRenderer:RelationRenderer
+  -pumlRenderer:PumlRenderer
+  -nodeParser:NodeParser
   
-  +__construct(codeProvider:CodeProvider, nodeFinder:NodeFinder, namespaceTraverser:NodeTraverser, parser:Parser, relationInferrer:RelationInferrer, classLikeRenderer:ClassLikeRenderer, relationRenderer:RelationRenderer)
+  +__construct(codeProvider:CodeProvider, nodeParser:NodeParser, relationInferrer:RelationInferrer, pumlRenderer:PumlRenderer)
   +generatePuml(input:string):string
 }
 
 Jhofm\\PhPuml\\Service\\PhPuml --> \\Jhofm\\PhPuml\\CodeProvider\\CodeProvider
-Jhofm\\PhPuml\\Service\\PhPuml --> \\PhpParser\\NodeFinder
-Jhofm\\PhPuml\\Service\\PhPuml --> \\PhpParser\\NodeTraverser
-Jhofm\\PhPuml\\Service\\PhPuml --> \\PhpParser\\Parser
+Jhofm\\PhPuml\\Service\\PhPuml --> \\Jhofm\\PhPuml\\NodeParser\\NodeParser
 Jhofm\\PhPuml\\Service\\PhPuml --> \\Jhofm\\PhPuml\\Relation\\RelationInferrer
-Jhofm\\PhPuml\\Service\\PhPuml --> \\Jhofm\\PhPuml\\Renderer\\ClassLikeRenderer
-Jhofm\\PhPuml\\Service\\PhPuml --> \\Jhofm\\PhPuml\\Renderer\\RelationRenderer
-Jhofm\\PhPuml\\Service\\PhPuml ..> \\Jhofm\\PhPuml\\Exception\\PhPumlException : throws
+Jhofm\\PhPuml\\Service\\PhPuml --> \\Jhofm\\PhPuml\\Renderer\\PumlRenderer
+
 
 @enduml

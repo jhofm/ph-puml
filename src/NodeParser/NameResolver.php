@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Jhofm\PhPuml\NodeVisitor;
+namespace Jhofm\PhPuml\NodeParser;
 
 use PhpParser\BuilderHelpers;
 use PhpParser\Comment\Doc;
@@ -54,11 +54,9 @@ class NameResolver extends OriginalNameResolver
             if (null !== $node->extends) {
                 $node->extends = $this->resolveClassName($node->extends);
             }
-
             foreach ($node->implements as &$interface) {
                 $interface = $this->resolveClassName($interface);
             }
-
             $this->resolveAttrGroups($node);
             if (null !== $node->name) {
                 $this->addNamespacedName($node);
@@ -67,7 +65,6 @@ class NameResolver extends OriginalNameResolver
             foreach ($node->extends as &$interface) {
                 $interface = $this->resolveClassName($interface);
             }
-
             $this->resolveAttrGroups($node);
             $this->addNamespacedName($node);
         } elseif ($node instanceof Stmt\Trait_) {
@@ -118,12 +115,10 @@ class NameResolver extends OriginalNameResolver
             foreach ($node->traits as &$trait) {
                 $trait = $this->resolveClassName($trait);
             }
-
             foreach ($node->adaptations as $adaptation) {
                 if (null !== $adaptation->trait) {
                     $adaptation->trait = $this->resolveClassName($adaptation->trait);
                 }
-
                 if ($adaptation instanceof Stmt\TraitUseAdaptation\Precedence) {
                     foreach ($adaptation->insteadof as &$insteadof) {
                         $insteadof = $this->resolveClassName($insteadof);
@@ -148,7 +143,6 @@ class NameResolver extends OriginalNameResolver
         $name = $prefix ? Name::concat($prefix, $use->name) : $use->name;
         // Type is determined either by individual element or whole use declaration
         $type |= $use->type;
-
         $this->nameContext->addAlias(
             $name,
             (string) $use->getAlias(),
@@ -207,7 +201,6 @@ class NameResolver extends OriginalNameResolver
         if (!array_key_exists('comments', $attributes)) {
             return;
         }
-
         foreach ($attributes['comments'] as &$comment) {
             if (!$comment instanceof Doc) {
                 continue;

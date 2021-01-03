@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Jhofm\PhPuml\Test\Integration;
 
 use Exception;
-use Jhofm\PhPuml\Service\PhPuml;
+use Jhofm\PhPuml\Service\PhPumlService;
 use PHPUnit\Framework\TestCase;
 use ProjectServiceContainer;
 use Symfony\Component\Console\Application;
@@ -46,6 +46,6 @@ class ContainerTest extends TestCase
     public function testGetPrivateServiceThrowsException()
     {
         $this->expectException(ServiceNotFoundException::class);
-        $this->subject->get(PhPuml::class);
+        $this->subject->get(PhPumlService::class);
     }
 }

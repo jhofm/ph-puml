@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Jhofm\PhPuml\Exception;
+namespace Jhofm\PhPuml;
 
 use Exception;
 

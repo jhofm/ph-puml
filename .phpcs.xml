@@ -151,7 +151,7 @@
 
     <rule ref="Generic.ControlStructures.DisallowYodaConditions.Found">
         <!-- allow yoda in extension of parser package class -->
-        <exclude-pattern>src/NodeVisitor/NameResolver.php</exclude-pattern>
+        <exclude-pattern>src/NodeParser/NameResolver.php</exclude-pattern>
     </rule>
 
     <rule ref="Generic.Files.LineEndings.InvalidEOLChar">
