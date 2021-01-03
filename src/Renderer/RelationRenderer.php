@@ -68,7 +68,7 @@ class RelationRenderer
             . $this->typeRenderer->render($relation->getTarget(), $renderClassNamespaces)
             . ($relation->getRole() === null
                 ? ''
-                : ' : ' . $relation->getRole()
+                : ' : <<' . $relation->getRole() . '>>'
              );
     }
 
@@ -85,6 +85,12 @@ class RelationRenderer
         $line = '..';
         if ($relation->getRelationType() === Relation::RELATION_TYPE_DEPENDENCY) {
             $line = '--';
+        } elseif ($relation->getRelationType() === Relation::RELATION_TYPE_EXTENSION) {
+            $arrow = '|>';
+            $line = '--';
+        } elseif ($relation->getRelationType() === Relation::RELATION_TYPE_IMPLEMENTATION) {
+            $arrow = '|>';
+            $line = '..';
         }
         return ' '
             . $this->renderQuantifier($sourceQuantifier)

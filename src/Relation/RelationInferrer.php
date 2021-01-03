@@ -12,6 +12,7 @@ use PhpParser\Node\Name;
 use PhpParser\Node\Stmt\Class_;
 use PhpParser\Node\Stmt\ClassLike;
 use PhpParser\Node\Stmt\ClassMethod;
+use PhpParser\Node\Stmt\TraitUse;
 use PhpParser\NodeFinder;
 
 /**
@@ -58,22 +59,72 @@ class RelationInferrer
         );
         $thrown = [];
         foreach ($relationExpressions['Expr_StaticCall'] as $type) {
-            $relations[] = new Relation($node->namespacedName, $type, Relation::RELATION_TYPE_ASSOCIATION, 'uses');
+            $relations[] = new Relation($node->namespacedName, $type, Relation::RELATION_TYPE_ASSOCIATION, 'use');
         }
         foreach ($relationExpressions['Expr_StaticPropertyFetch'] as $type) {
-            $relations[] = new Relation($node->namespacedName, $type, Relation::RELATION_TYPE_ASSOCIATION, 'uses');
+            $relations[] = new Relation($node->namespacedName, $type, Relation::RELATION_TYPE_ASSOCIATION, 'use');
         }
         foreach ($relationExpressions['Stmt_Throw'] as $type) {
-            $relations[] = new Relation($node->namespacedName, $type, Relation::RELATION_TYPE_ASSOCIATION, 'throws');
+            $relations[] = new Relation($node->namespacedName, $type, Relation::RELATION_TYPE_ASSOCIATION, 'throw');
             $thrown[] = (string) $type;
         }
         foreach ($relationExpressions['Expr_New'] as $type) {
             // do not add types created in throw statement as created
             if (!in_array((string) $type, $thrown)) {
-                $relations[] = new Relation($node->namespacedName, $type, Relation::RELATION_TYPE_ASSOCIATION, 'creates');
+                $relations[] = new Relation($node->namespacedName, $type, Relation::RELATION_TYPE_ASSOCIATION, 'create');
             }
         }
+        foreach ($this->getExtensions($node) as $type) {
+            $relations[] = new Relation($node->namespacedName, $type, Relation::RELATION_TYPE_EXTENSION);
+        }
+        foreach ($this->getImplementations($node) as $type) {
+            $relations[] = new Relation($node->namespacedName, $type, Relation::RELATION_TYPE_IMPLEMENTATION);
+        }
         return $relations;
+    }
+
+    /**
+     * @param ClassLike $node
+     *
+     * @return array
+     */
+    private function getExtensions(ClassLike $node): array
+    {
+        $extends = [];
+        if (property_exists($node, 'extends') && !empty($node->extends)) {
+            if (is_array($node->extends)) {
+                $extends = $node->extends;
+            } else {
+                $extends[] = $node->extends;
+            }
+        }
+        if ($node instanceof Class_ && count($node->stmts) > 0) {
+            $traitUses = $this->nodeFinder->find(
+                $node->stmts,
+                function ($stmt) {
+                    return $stmt instanceof TraitUse;
+                }
+            );
+            /** @var TraitUse $traitUse */
+            foreach ($traitUses as $traitUse) {
+                $extends = array_merge($extends, $traitUse->traits);
+            }
+        }
+        return $extends;
+    }
+
+    /**
+     * @param ClassLike $node
+     *
+     * @return array
+     */
+    private function getImplementations(ClassLike $node): array
+    {
+        $implements = [];
+        if (property_exists($node, 'implements') && !empty($node->implements)) {
+            $implements = $node->implements;
+        }
+        return $implements;
     }
 
     /**
