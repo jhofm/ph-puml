@@ -5,150 +5,157 @@ set namespaceSeparator \\
 class Jhofm\\PhPuml\\CodeProvider\\CodeProvider {
   -options:Options
   
-  +__construct(options:Options)
-  +getCode(directory:string):Generator
-  -getIterator(directory:string):Traversable
+  +<<create>> CodeProvider (options:Options)
+  +getCode (directory:string):Generator
+  -getIterator (directory:string):Traversable
 }
 
-Jhofm\\PhPuml\\CodeProvider\\CodeProvider --> \\Jhofm\\PhPuml\\Options\\Options
-Jhofm\\PhPuml\\CodeProvider\\CodeProvider ..> \\Jhofm\\PhPuml\\CodeProvider\\CodeProviderException : throws
-Jhofm\\PhPuml\\CodeProvider\\CodeProvider ..> \\League\\Flysystem\\Filesystem : creates
-Jhofm\\PhPuml\\CodeProvider\\CodeProvider ..> \\League\\Flysystem\\Local\\LocalFilesystemAdapter : creates
+Jhofm\\PhPuml\\CodeProvider\\CodeProvider --> Jhofm\\PhPuml\\Options\\Options
+Jhofm\\PhPuml\\CodeProvider\\CodeProvider ..> Jhofm\\PhPuml\\CodeProvider\\CodeProviderException : <<throw>>
 
-class Jhofm\\PhPuml\\CodeProvider\\CodeProviderException extends \\Jhofm\\PhPuml\\PhPumlException {
+class Jhofm\\PhPuml\\CodeProvider\\CodeProviderException {
 }
 
-class Jhofm\\PhPuml\\Command\\ClassDiagramCommand extends \\Symfony\\Component\\Console\\Command\\Command {
-  -phpumlService:PhPuml
+class Jhofm\\PhPuml\\Command\\ClassDiagramCommand {
+  -phpumlService:PhPumlService
   -options:Options
   -formatter:Formatter
   
-  +__construct(phpumlService:PhPuml, options:Options, formatter:Formatter, name:string = null)
-  +configure()
-  +execute(input:InputInterface, output:OutputInterface)
+  +<<create>> ClassDiagramCommand (phpumlService:PhPumlService, options:Options, formatter:Formatter, name:string)
+  +configure ()
+  +execute (input:InputInterface, output:OutputInterface)
 }
 
-Jhofm\\PhPuml\\Command\\ClassDiagramCommand --> \\Jhofm\\PhPuml\\Service\\PhPuml
-Jhofm\\PhPuml\\Command\\ClassDiagramCommand --> \\Jhofm\\PhPuml\\Options\\Options
-Jhofm\\PhPuml\\Command\\ClassDiagramCommand --> \\Jhofm\\PhPuml\\Formatter\\Formatter
-Jhofm\\PhPuml\\Command\\ClassDiagramCommand ..> \\Jhofm\\PhPuml\\PhPumlException : throws
+Jhofm\\PhPuml\\Command\\ClassDiagramCommand --> Jhofm\\PhPuml\\Service\\PhPumlService
+Jhofm\\PhPuml\\Command\\ClassDiagramCommand --> Jhofm\\PhPuml\\Options\\Options
+Jhofm\\PhPuml\\Command\\ClassDiagramCommand --> Jhofm\\PhPuml\\Formatter\\Formatter
 
-class Jhofm\\PhPuml\\Formatter\\Formatter implements \\Jhofm\\PhPuml\\Formatter\\FormatterInterface {
+class Jhofm\\PhPuml\\Formatter\\Formatter {
   -formatters:array<FormatterInterface>
   -options:Options
   
-  +__construct(options:Options, formatters:mixed)
-  +format(puml:string = null):string
-  -getFormatterByFormat(format:string):FormatterInterface
-  -getFormatterByClassname(class:string):FormatterInterface
+  +<<create>> Formatter (options:Options, formatters:mixed)
+  +format (puml:string):string
+  -getFormatterByFormat (format:string):FormatterInterface
+  -getFormatterByClassname (class:string):FormatterInterface
 }
 
-Jhofm\\PhPuml\\Formatter\\Formatter --> \\Jhofm\\PhPuml\\Options\\Options
-Jhofm\\PhPuml\\Formatter\\Formatter ..> \\Jhofm\\PhPuml\\Formatter\\FormatterException : throws
+Jhofm\\PhPuml\\Formatter\\Formatter --> Jhofm\\PhPuml\\Options\\Options
+Jhofm\\PhPuml\\Formatter\\Formatter ..> Jhofm\\PhPuml\\Formatter\\FormatterException : <<throw>>
+Jhofm\\PhPuml\\Formatter\\Formatter ..|> Jhofm\\PhPuml\\Formatter\\FormatterInterface
 
-class Jhofm\\PhPuml\\Formatter\\FormatterException extends \\Jhofm\\PhPuml\\PhPumlException {
+class Jhofm\\PhPuml\\Formatter\\FormatterException {
 }
 
 interface Jhofm\\PhPuml\\Formatter\\FormatterInterface {
-  +format(puml:string):string
+  +format (puml:string):string
 }
 
-class Jhofm\\PhPuml\\Formatter\\NullFormatterStrategy implements \\Jhofm\\PhPuml\\Formatter\\FormatterInterface {
-  +format(puml:string):string
+class Jhofm\\PhPuml\\Formatter\\NullFormatterStrategy {
+  +format (puml:string):string
 }
 
-class Jhofm\\PhPuml\\Formatter\\PlantUmlFormatterStrategy implements \\Jhofm\\PhPuml\\Formatter\\FormatterInterface {
+Jhofm\\PhPuml\\Formatter\\NullFormatterStrategy ..|> Jhofm\\PhPuml\\Formatter\\FormatterInterface
+
+class Jhofm\\PhPuml\\Formatter\\PlantUmlFormatterStrategy {
   -options:Options
   -rootDir:string
   
-  +__construct(options:Options)
-  +format(puml:string):string
-  -getPlantUmlParameterForFormat(format:string):string
-  -getPlantUmlJarPath():string
+  +<<create>> PlantUmlFormatterStrategy (options:Options)
+  +format (puml:string):string
+  -getPlantUmlParameterForFormat (format:string):string
+  -getPlantUmlJarPath ():string
 }
 
-Jhofm\\PhPuml\\Formatter\\PlantUmlFormatterStrategy --> \\Jhofm\\PhPuml\\Options\\Options
-Jhofm\\PhPuml\\Formatter\\PlantUmlFormatterStrategy ..> \\Jhofm\\PhPuml\\Formatter\\FormatterException : throws
-Jhofm\\PhPuml\\Formatter\\PlantUmlFormatterStrategy ..> \\Symfony\\Component\\Process\\Process : creates
+Jhofm\\PhPuml\\Formatter\\PlantUmlFormatterStrategy --> Jhofm\\PhPuml\\Options\\Options
+Jhofm\\PhPuml\\Formatter\\PlantUmlFormatterStrategy ..> Jhofm\\PhPuml\\Formatter\\FormatterException : <<throw>>
+Jhofm\\PhPuml\\Formatter\\PlantUmlFormatterStrategy ..|> Jhofm\\PhPuml\\Formatter\\FormatterInterface
 
-class Jhofm\\PhPuml\\NodeParser\\NameResolver extends \\PhpParser\\NodeVisitor\\NameResolver {
-  +__construct()
-  +enterNode(node:Node)
-  -addAlias(use:UseUse, type:mixed, prefix:Name)
-  -resolveSignature(node:mixed)
-  -resolveType(node:mixed)
-  -resolveAttributes(node:Property)
+class Jhofm\\PhPuml\\NodeParser\\ClassLikeRegistry {
+  -classLikes:array
+  -typeRenderer:TypeRenderer
+  
+  +<<create>> ClassLikeRegistry (typeRenderer:TypeRenderer)
+  +addClassLike (classLike:ClassLike):void
+  +has (node:Node):bool
+  +getClassLikes ():array
 }
 
-Jhofm\\PhPuml\\NodeParser\\NameResolver ..> \\PhpParser\\Node\\Name : uses
-Jhofm\\PhPuml\\NodeParser\\NameResolver ..> \\PhpParser\\BuilderHelpers : uses
-Jhofm\\PhPuml\\NodeParser\\NameResolver ..> \\PhpParser\\Comment\\Doc : creates
+Jhofm\\PhPuml\\NodeParser\\ClassLikeRegistry --> Jhofm\\PhPuml\\Renderer\\TypeRenderer
+
+class Jhofm\\PhPuml\\NodeParser\\NameResolver {
+  +<<create>> NameResolver ()
+  +enterNode (node:Node)
+  -addAlias (use:UseUse, type:mixed, prefix:Name)
+  -resolveSignature (node:mixed)
+  -resolveType (node:mixed)
+  -resolveAttributes (node:Property)
+}
 
 class Jhofm\\PhPuml\\NodeParser\\NodeParser {
   -phpParser:Parser
   -nodeFinder:NodeFinder
   -namespaceTraverser:NodeTraverser
   
-  +__construct(phpParser:Parser, nodeFinder:NodeFinder, namespaceTraverser:NodeTraverser)
-  +getClassLikes(path:string, code:string):array
+  +<<create>> NodeParser (phpParser:Parser, nodeFinder:NodeFinder, namespaceTraverser:NodeTraverser)
+  +getClassLikes (path:string, code:string):array
 }
 
-Jhofm\\PhPuml\\NodeParser\\NodeParser --> \\PhpParser\\Parser
-Jhofm\\PhPuml\\NodeParser\\NodeParser --> \\PhpParser\\NodeFinder
-Jhofm\\PhPuml\\NodeParser\\NodeParser --> \\PhpParser\\NodeTraverser
-Jhofm\\PhPuml\\NodeParser\\NodeParser ..> \\Jhofm\\PhPuml\\NodeParser\\NodeParserException : throws
+Jhofm\\PhPuml\\NodeParser\\NodeParser ..> Jhofm\\PhPuml\\NodeParser\\NodeParserException : <<throw>>
 
-class Jhofm\\PhPuml\\NodeParser\\NodeParserException extends \\Jhofm\\PhPuml\\PhPumlException {
+class Jhofm\\PhPuml\\NodeParser\\NodeParserException {
 }
 
-class Jhofm\\PhPuml\\Options\\Option <<leaf>> implements \\Jhofm\\PhPuml\\Options\\OptionInterface {
+class Jhofm\\PhPuml\\Options\\Option <<leaf>> {
   -config:array
   
-  +__construct(config:array)
-  +isArray():bool
-  +getValue()
-  +__toString():string
-  +getValidValues():array = null
-  +getName():string
-  +getShortName():string = null
-  +getDescription():string = null
+  +<<create>> Option (config:array)
+  +isArray ():bool
+  +getValue ()
+  +__toString ():string
+  +getValidValues ():array
+  +getName ():string
+  +getShortName ():string
+  +getDescription ():string
 }
+
+Jhofm\\PhPuml\\Options\\Option ..|> Jhofm\\PhPuml\\Options\\OptionInterface
 
 class Jhofm\\PhPuml\\Options\\OptionConfiguration <<leaf>> {
 }
 
 interface Jhofm\\PhPuml\\Options\\OptionInterface {
-  +getName():string
-  +getShortName():string = null
-  +getDescription():string = null
-  +getValidValues():array = null
-  +getValue()
-  +isArray():bool
-  +__toString():string
+  +getName ():string
+  +getShortName ():string
+  +getDescription ():string
+  +getValidValues ():array
+  +getValue ()
+  +isArray ():bool
+  +__toString ():string
 }
 
-class Jhofm\\PhPuml\\Options\\Options <<leaf>> implements \\JsonSerializable, \\IteratorAggregate {
+class Jhofm\\PhPuml\\Options\\Options <<leaf>> {
   -options:array
   
-  +__construct(options:array)
-  -validateConfig(options:array):void
-  +hasFlag(name:string, char:string):bool
-  +getIterator()
-  +setValues(values:array):self
-  +has(name:string):bool
-  +__get(name:string)
-  +get(name:string)
-  +getOption(name:string):OptionInterface
-  +__set(name:string, value:mixed):self
-  +set(name:string, value:mixed):self
-  +jsonSerialize()
-  -validate(name:string, value:mixed):void
+  +<<create>> Options (options:array)
+  -validateConfig (options:array):void
+  +hasFlag (name:string, char:string):bool
+  +getIterator ()
+  +setValues (values:array):self
+  +has (name:string):bool
+  +__get (name:string)
+  +get (name:string)
+  +getOption (name:string):OptionInterface
+  +__set (name:string, value:mixed):self
+  +set (name:string, value:mixed):self
+  +jsonSerialize ()
+  -validate (name:string, value:mixed):void
 }
 
-Jhofm\\PhPuml\\Options\\Options ..> \\Jhofm\\PhPuml\\Options\\OptionsException : throws
-Jhofm\\PhPuml\\Options\\Options ..> \\Jhofm\\PhPuml\\Options\\Option : creates
+Jhofm\\PhPuml\\Options\\Options ..> Jhofm\\PhPuml\\Options\\OptionsException : <<throw>>
+Jhofm\\PhPuml\\Options\\Options ..> Jhofm\\PhPuml\\Options\\Option : <<create>>
 
-class Jhofm\\PhPuml\\Options\\OptionsException extends \\Jhofm\\PhPuml\\PhPumlException {
+class Jhofm\\PhPuml\\Options\\OptionsException {
 }
 
 class Jhofm\\PhPuml\\Relation\\Relation {
@@ -159,111 +166,129 @@ class Jhofm\\PhPuml\\Relation\\Relation {
   -sourceQuantifier:integer|null
   -targetQuantifier:integer|null
   
-  +__construct(source:Node, target:Node, relationType:string, role:string = null, sourceQuantifier:int = null, targetQuantifier:int = null)
-  +getRelationType():string
-  +getSource():Node
-  +getTarget():Node
-  +getRole():string = null
-  +getSourceQuantifier():int = null
-  +getTargetQuantifier():int = null
+  +<<create>> Relation (source:Node, target:Node, relationType:string, role:string, sourceQuantifier:int, targetQuantifier:int)
+  +getRelationType ():string
+  +getSource ():Node
+  +getTarget ():Node
+  +getRole ():string
+  +getSourceQuantifier ():int
+  +getTargetQuantifier ():int
 }
-
-Jhofm\\PhPuml\\Relation\\Relation --> \\PhpParser\\Node
 
 class Jhofm\\PhPuml\\Relation\\RelationInferrer {
   -nodeFinder:NodeFinder
-  -typeRenderer:TypeRenderer
+  -typeGuard:TypeGuard
   
-  +__construct(nodeFinder:NodeFinder, typeRenderer:TypeRenderer)
-  +inferRelations(node:ClassLike):array
-  -getConstructorArgumentTypes(node:Node):array
-  -getTypesFromNodeTypes(node:ClassLike, types:array):array
-  -getNodeTypeName(node:Node):Name = null
+  +<<create>> RelationInferrer (nodeFinder:NodeFinder, typeGuard:TypeGuard)
+  +inferRelations (node:ClassLike):array
+  -getExtensions (node:ClassLike):array
+  -getImplementations (node:ClassLike):array
+  -getConstructorArgumentTypes (node:Node):array
+  -getTypesFromNodeTypes (node:ClassLike, types:array):array
+  -getNodeTypeName (node:Node):Name
 }
 
-Jhofm\\PhPuml\\Relation\\RelationInferrer --> \\PhpParser\\NodeFinder
-Jhofm\\PhPuml\\Relation\\RelationInferrer --> \\Jhofm\\PhPuml\\Renderer\\TypeRenderer
-Jhofm\\PhPuml\\Relation\\RelationInferrer ..> \\Jhofm\\PhPuml\\Relation\\Relation : creates
+Jhofm\\PhPuml\\Relation\\RelationInferrer --> Jhofm\\PhPuml\\Relation\\TypeGuard
+Jhofm\\PhPuml\\Relation\\RelationInferrer ..> Jhofm\\PhPuml\\Relation\\Relation : <<create>>
 
-class Jhofm\\PhPuml\\Renderer\\ClassLikeRenderer extends \\Jhofm\\PhPuml\\Renderer\\IndentedRenderTrait {
+class Jhofm\\PhPuml\\Relation\\TypeGuard {
+  -classLikeRegistry:ClassLikeRegistry
+  -options:Options
+  
+  +<<create>> TypeGuard (classLikeRegistry:ClassLikeRegistry, options:Options)
+  +isTypeIncluded (name:Name)
+}
+
+Jhofm\\PhPuml\\Relation\\TypeGuard --> Jhofm\\PhPuml\\NodeParser\\ClassLikeRegistry
+Jhofm\\PhPuml\\Relation\\TypeGuard --> Jhofm\\PhPuml\\Options\\Options
+
+class Jhofm\\PhPuml\\Renderer\\ClassLikeRenderer {
   -typeMap:array
   -typeRenderer:TypeRenderer
   -options:Options
   
-  +__construct(typeRenderer:TypeRenderer, options:Options)
-  +render(node:ClassLike):string
-  -renderClassLikeHeader(node:ClassLike):string
-  -renderProperties(node:ClassLike):string
-  -renderProperty(property:Property):string
-  -renderMethods(node:ClassLike):string
-  -renderMethod(method:ClassMethod):string
-  -renderVisibility(node:Stmt):string
-  -renderExtends(node:ClassLike):string
-  -renderImplements(node:ClassLike):string
-  -renderNamespace(node:ClassLike):bool
-  -renderNamepaceForFlag(flag:string):bool
-  -getTypeFlag(node:ClassLike):string
+  +<<create>> ClassLikeRenderer (typeRenderer:TypeRenderer)
+  +render (node:ClassLike, options:Options):string
+  -renderClassLikeHeader (node:ClassLike):string
+  -renderProperties (node:ClassLike):string
+  -renderProperty (property:Property):string
+  -renderMethods (node:ClassLike):string
+  -renderMethod (method:ClassMethod, classLike:ClassLike):string
+  -renderVisibility (node:Stmt):string
+  -renderNamepaceForFlag (flag:string):bool
 }
 
-Jhofm\\PhPuml\\Renderer\\ClassLikeRenderer --> \\Jhofm\\PhPuml\\Renderer\\TypeRenderer
-Jhofm\\PhPuml\\Renderer\\ClassLikeRenderer --> \\Jhofm\\PhPuml\\Options\\Options
-Jhofm\\PhPuml\\Renderer\\ClassLikeRenderer ..> \\Jhofm\\PhPuml\\Renderer\\RendererException : throws
+Jhofm\\PhPuml\\Renderer\\ClassLikeRenderer --> Jhofm\\PhPuml\\Renderer\\TypeRenderer
+Jhofm\\PhPuml\\Renderer\\ClassLikeRenderer ..> Jhofm\\PhPuml\\Renderer\\RendererException : <<throw>>
+Jhofm\\PhPuml\\Renderer\\ClassLikeRenderer --|> Jhofm\\PhPuml\\Renderer\\IndentedRenderTrait
 
 abstract class Jhofm\\PhPuml\\Renderer\\IndentedRenderTrait <<trait>> {
   -indentation:integer
   -indentationString:string
   
-  -appendLine(puml:string, line:string):void
+  -appendLine (puml:string, line:string):void
 }
 
 class Jhofm\\PhPuml\\Renderer\\PumlRenderer {
   -buffer:string
+  -classLikeRenderer:ClassLikeRenderer
+  -relationRenderer:RelationRenderer
+  -options:Options
   
-  +__construct(classLikeRenderer:ClassLikeRenderer, relationRenderer:RelationRenderer)
-  +addClassLike(classLike:ClassLike):void
-  +addRelations(relations:array):void
-  +getPuml():string
+  +<<create>> PumlRenderer (classLikeRenderer:ClassLikeRenderer, relationRenderer:RelationRenderer, options:Options)
+  +renderClassLike (classLike:ClassLike):void
+  +renderRelations (relations:array):void
+  +getPuml ():string
 }
 
-Jhofm\\PhPuml\\Renderer\\PumlRenderer --> \\Jhofm\\PhPuml\\Renderer\\ClassLikeRenderer
-Jhofm\\PhPuml\\Renderer\\PumlRenderer --> \\Jhofm\\PhPuml\\Renderer\\RelationRenderer
+Jhofm\\PhPuml\\Renderer\\PumlRenderer --> Jhofm\\PhPuml\\Renderer\\ClassLikeRenderer
+Jhofm\\PhPuml\\Renderer\\PumlRenderer --> Jhofm\\PhPuml\\Renderer\\RelationRenderer
+Jhofm\\PhPuml\\Renderer\\PumlRenderer --> Jhofm\\PhPuml\\Options\\Options
 
-class Jhofm\\PhPuml\\Renderer\\RelationRenderer extends \\Jhofm\\PhPuml\\Renderer\\IndentedRenderTrait {
+class Jhofm\\PhPuml\\Renderer\\RelationRenderer {
   -typeRenderer:TypeRenderer
   -options:Options
   
-  +__construct(typeRenderer:TypeRenderer, options:Options)
-  +renderRelations(relations:array):string
-  +render(relation:Relation):string
-  -renderRelationType(relation:Relation, sourceQuantifier:int = null, targetQuantifier:int = null):string
-  -renderQuantifier(sourceQuantifier:int = null):string
+  +<<create>> RelationRenderer (typeRenderer:TypeRenderer)
+  +renderRelations (relations:array, options:Options):string
+  +render (relation:Relation):string
+  -renderRelationType (relation:Relation, sourceQuantifier:int, targetQuantifier:int):string
+  -renderQuantifier (sourceQuantifier:int):string
 }
 
-Jhofm\\PhPuml\\Renderer\\RelationRenderer --> \\Jhofm\\PhPuml\\Renderer\\TypeRenderer
-Jhofm\\PhPuml\\Renderer\\RelationRenderer --> \\Jhofm\\PhPuml\\Options\\Options
-Jhofm\\PhPuml\\Renderer\\RelationRenderer ..> \\Jhofm\\PhPuml\\Renderer\\RendererException : throws
+Jhofm\\PhPuml\\Renderer\\RelationRenderer --> Jhofm\\PhPuml\\Renderer\\TypeRenderer
+Jhofm\\PhPuml\\Renderer\\RelationRenderer ..> Jhofm\\PhPuml\\Renderer\\RendererException : <<throw>>
+Jhofm\\PhPuml\\Renderer\\RelationRenderer --|> Jhofm\\PhPuml\\Renderer\\IndentedRenderTrait
 
-class Jhofm\\PhPuml\\Renderer\\RendererException extends \\Jhofm\\PhPuml\\PhPumlException {
+class Jhofm\\PhPuml\\Renderer\\RendererException {
 }
 
 class Jhofm\\PhPuml\\Renderer\\TypeRenderer {
-  +render(type:Node = null, namespaced:bool):string
+  -aliases:array
+  -shortNames:array
+  
+  +render (type:Node, namespaced:bool):string
+  +addTypeName (node:Node):void
 }
 
-class Jhofm\\PhPuml\\Service\\PhPuml {
+class Jhofm\\PhPuml\\Service\\PhPumlService {
   -codeProvider:CodeProvider
   -relationInferrer:RelationInferrer
   -pumlRenderer:PumlRenderer
   -nodeParser:NodeParser
+  -classLikeRegistry:ClassLikeRegistry
   
-  +__construct(codeProvider:CodeProvider, nodeParser:NodeParser, relationInferrer:RelationInferrer, pumlRenderer:PumlRenderer)
-  +generatePuml(input:string):string
+  +<<create>> PhPumlService (codeProvider:CodeProvider, nodeParser:NodeParser, classLikeRegistry:ClassLikeRegistry, relationInferrer:RelationInferrer, pumlRenderer:PumlRenderer)
+  +generatePuml (input:string):string
+  -addClassLikesToRegistry (input:string):void
+  -render ():string
 }
 
-Jhofm\\PhPuml\\Service\\PhPuml --> \\Jhofm\\PhPuml\\CodeProvider\\CodeProvider
-Jhofm\\PhPuml\\Service\\PhPuml --> \\Jhofm\\PhPuml\\NodeParser\\NodeParser
-Jhofm\\PhPuml\\Service\\PhPuml --> \\Jhofm\\PhPuml\\Relation\\RelationInferrer
-Jhofm\\PhPuml\\Service\\PhPuml --> \\Jhofm\\PhPuml\\Renderer\\PumlRenderer
+Jhofm\\PhPuml\\Service\\PhPumlService --> Jhofm\\PhPuml\\CodeProvider\\CodeProvider
+Jhofm\\PhPuml\\Service\\PhPumlService --> Jhofm\\PhPuml\\NodeParser\\NodeParser
+Jhofm\\PhPuml\\Service\\PhPumlService --> Jhofm\\PhPuml\\NodeParser\\ClassLikeRegistry
+Jhofm\\PhPuml\\Service\\PhPumlService --> Jhofm\\PhPuml\\Relation\\RelationInferrer
+Jhofm\\PhPuml\\Service\\PhPumlService --> Jhofm\\PhPuml\\Renderer\\PumlRenderer
 
 
 @enduml

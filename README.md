@@ -121,10 +121,15 @@ Namespaced classes, interfaces and traits are rendered with fully qualified name
 This behaviour can be customized using the `namespaced-types`/`t` option.
 
 ```bash
-$ ph-puml -t citmp # render all types as FQNs
-$ ph-puml -t # short types only
-$ ph-puml -t c # only classes as FQNs  
+$ ph-puml -t cmp # render all types as FQNs
+$ ph-puml -t # render short types only
+$ ph-puml -t c # render only classlikes (classes, interfaces & traits) as FQNs  
 ```
+
+### Relations to external types
+
+Relations to types that have not been analyzed are not rendered by default to reduce clutter in the generated diagram.
+
 
 ### Help   
 PhPuml uses `symfony/command`, so a help page including all supported arguments and options is available.   
