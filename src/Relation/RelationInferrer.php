@@ -77,6 +77,8 @@ class RelationInferrer
     }
 
     /**
+     * Get type names of constructor arguments
+     *
      * @param Node $node
      *
      * @return Node[] $types
@@ -106,8 +108,10 @@ class RelationInferrer
     }
 
     /**
+     * Lookup nodes of multiple types in one finder pass
+     *
      * @param ClassLike $node
-     * @param array $types
+     * @param array $types classnames of nodes to find
      *
      * @return Node[] $types
      */
@@ -128,7 +132,7 @@ class RelationInferrer
             }
         );
         foreach ($nodesOfType as $nodeOfType) {
-            $type = $this->getTypeFromNode($nodeOfType);
+            $type = $this->getNodeTypeName($nodeOfType);
             if ($type !== null) {
                 $result[$nodeOfType->getType()][$this->typeRenderer->render($type)] = $type;
             }
@@ -137,20 +141,21 @@ class RelationInferrer
     }
 
     /**
-     * @param Node $nodeOfType
+     * @param Node $node
      *
      * @return Name|null
      */
-    private function getTypeFromNode(Node $nodeOfType): ?Name
+    private function getNodeTypeName(Node $node): ?Name
     {
-        if ($nodeOfType instanceof Node\Stmt\Throw_ && $nodeOfType->expr instanceof New_) {
+        if ($node instanceof Node\Stmt\Throw_ && $node->expr instanceof New_) {
             // handle throw new
-            $type = $nodeOfType->expr->class;
+            $type = $node->expr->class;
             if ($type instanceof Name && !$type->isSpecialClassName()) {
                 return $type;
             }
-        } elseif ($nodeOfType instanceof Expr && property_exists($nodeOfType, 'class')) {
-            $type = $nodeOfType->class;
+        } elseif ($node instanceof Expr && property_exists($node, 'class')) {
+            $type = $node->class;
+            // ignore self/parent/static types for now
             if ($type instanceof Name && !$type->isSpecialClassName()) {
                 return $type;
             }

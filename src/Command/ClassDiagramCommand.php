@@ -4,11 +4,11 @@ declare(strict_types=1);
 
 namespace Jhofm\PhPuml\Command;
 
-use Jhofm\PhPuml\Exception\PhPumlException;
+use Jhofm\PhPuml\PhPumlException;
 use Jhofm\PhPuml\Formatter\Formatter;
 use Jhofm\PhPuml\Options\OptionInterface;
 use Jhofm\PhPuml\Options\Options;
-use Jhofm\PhPuml\Service\PhPuml;
+use Jhofm\PhPuml\Service\PhPumlService;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
@@ -24,7 +24,7 @@ class ClassDiagramCommand extends Command
     private const ARG_INPUT_PATH = 'input';
     private const ARG_OUTPUT_PATH = 'output';
 
-    /** @var PhPuml */
+    /** @var PhPumlService */
     private $phpumlService;
     /** @var Options */
     private $options;
@@ -34,13 +34,13 @@ class ClassDiagramCommand extends Command
     /**
      * PumlGenCommand constructor.
      *
-     * @param PhPuml $phpumlService
+     * @param PhPumlService $phpumlService
      * @param Options $options
      * @param Formatter $formatter
      * @param string|null $name
      */
     public function __construct(
-        PhPuml $phpumlService,
+        PhPumlService $phpumlService,
         Options $options,
         Formatter $formatter,
         ?string $name = null

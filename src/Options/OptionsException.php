@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Jhofm\PhPuml\Options;
 
-use Jhofm\PhPuml\Exception\PhPumlException;
+use Jhofm\PhPuml\PhPumlException;
 
 /**
  * Class OptionsException
