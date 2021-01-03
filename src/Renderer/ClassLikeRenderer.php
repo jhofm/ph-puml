@@ -85,7 +85,7 @@ class ClassLikeRenderer
         $puml .= $this->typeMap[get_class($node)] . ' ';
         $className = $this->typeRenderer->render(
             property_exists($node, 'namespacedName') ? $node->namespacedName : null,
-            $this->renderNamespace($node)
+            $this->shouldRenderNamespace($node)
         );
         $puml .= $className . ' ';
         if ($node instanceof Class_ && $node->isFinal()) {
@@ -94,8 +94,6 @@ class ClassLikeRenderer
         if ($node instanceof Trait_) {
             $puml .= '<<trait>> ';
         }
-        $puml .= $this->renderExtends($node);
-        $puml .= $this->renderImplements($node);
         $puml .= '{';
         return $puml;
     }
@@ -172,7 +170,7 @@ class ClassLikeRenderer
         $puml = '';
         $methods = $node->getMethods();
         foreach ($methods as $method) {
-            $this->appendLine($puml, $this->renderMethod($method));
+            $this->appendLine($puml, $this->renderMethod($method, $node));
         }
         return $puml;
     }
@@ -181,11 +179,12 @@ class ClassLikeRenderer
      * Render a method signature
      *
      * @param ClassMethod $method
+     * @param ClassLike $classLike
      *
      * @return string
      * @throws RendererException
      */
-    private function renderMethod(ClassMethod $method): string
+    private function renderMethod(ClassMethod $method, ClassLike $classLike): string
     {
         $puml = '';
         if ($method->isStatic()) {
@@ -198,8 +197,17 @@ class ClassLikeRenderer
             $puml .= '{final} ';
         }
         $puml .= $this->renderVisibility($method);
-        $methodName = (string) $method->name;
-        $puml .= $methodName . '(';
+        if ((string) $method->name === '__construct') {
+            $puml .= '<<create>> ' . $this->typeRenderer->render($classLike->name, false) . ' ';
+        } elseif ($method->isStatic()
+            && $method->getReturnType()->isSpecialClassName()
+            && in_array((string) $method->getReturnType(), ['self', 'static'])
+        ) {
+            $puml .= '<<create>> ' . (string) $method->name . ' ';
+        } else {
+            $puml .= (string) $method->name . ' ';
+        }
+        $puml .= '(';
         /**
          * @var integer $index
          * @var Param $param
@@ -249,80 +257,12 @@ class ClassLikeRenderer
     }
 
     /**
-     * Render ClassLike inheritance
-     *
-     * Trait use is treated as multi-inheritance from abstract classes with the <<trait>> stereotype.
-     * Get over it.
-     *
-     * @param ClassLike $node
-     *
-     * @return string
-     * @throws RendererException
-     */
-    private function renderExtends(ClassLike $node): string
-    {
-        $puml = '';
-        $extends = [];
-        if (property_exists($node, 'extends') && !empty($node->extends)) {
-            if (is_array($node->extends)) {
-                foreach ($node->extends as $extend) {
-                    $extends[] = $this->typeRenderer->render($extend, $this->renderNamespace($node));
-                }
-            } else {
-                $extends[] = $this->typeRenderer->render($node->extends, $this->renderNamespace($node));
-            }
-        }
-        if ($node instanceof Class_) {
-            foreach ($node->stmts as $stmt) {
-                if ($stmt instanceof TraitUse) {
-                    foreach ($stmt->traits as $trait) {
-                        $extends[] = $this->typeRenderer->render($trait, $this->renderNamepaceForFlag('t'));
-                    }
-                }
-            }
-        }
-        if (count($extends) > 0) {
-            $puml .= 'extends ';
-            foreach ($extends as $index => $extend) {
-                $puml .= $extend;
-                if ($index < (count($extends) - 1)) {
-                    $puml .= ', ';
-                }
-            }
-            $puml .= ' ';
-        }
-        return $puml;
-    }
-
-    /**
-     * @param ClassLike $node
-     *
-     * @return string
-     * @throws RendererException
-     */
-    private function renderImplements(ClassLike $node): string
-    {
-        $puml = '';
-        if (property_exists($node, 'implements') && !empty($node->implements)) {
-            $puml .= 'implements ';
-            foreach ($node->implements as $index => $name) {
-                $puml .= $this->typeRenderer->render($name, $this->renderNamepaceForFlag('i'));
-                if ($index < (count($node->implements) - 1)) {
-                    $puml .= ', ';
-                }
-            }
-            $puml .= ' ';
-        }
-        return $puml;
-    }
-
-    /**
      * @param ClassLike $node
      *
      * @return bool
      * @throws RendererException
      */
-    private function renderNamespace(ClassLike $node): bool
+    private function shouldRenderNamespace(ClassLike $node): bool
     {
         return $this->renderNamepaceForFlag($this->getTypeFlag($node));
     }

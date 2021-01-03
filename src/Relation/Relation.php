@@ -13,6 +13,9 @@ class Relation
 {
     public const RELATION_TYPE_DEPENDENCY = 'dependency';
     public const RELATION_TYPE_ASSOCIATION = 'association';
+    public const RELATION_TYPE_IMPLEMENTATION = 'implementation';
+    public const RELATION_TYPE_EXTENSION = 'extension';
+
     public const QUANTIFIER_ANY = PHP_INT_MAX;
 
     /** @var Node */
