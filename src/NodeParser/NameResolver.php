@@ -20,9 +20,6 @@ use PhpParser\Node\Stmt;
  */
 class NameResolver extends OriginalNameResolver
 {
-    /**
-     * NameResolver constructor.
-     */
     public function __construct()
     {
         parent::__construct(

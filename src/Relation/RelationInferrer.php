@@ -15,32 +15,22 @@ use PhpParser\Node\Stmt\ClassMethod;
 use PhpParser\Node\Stmt\TraitUse;
 use PhpParser\NodeFinder;
 
-/**
- * Class RelationRegistry
- */
 class RelationInferrer
 {
-    /** @var NodeFinder */
-    private $nodeFinder;
-    /** @var TypeGuard */
-    private $typeGuard;
-
     /**
      * RelationInferrer constructor.
      *
      * @param NodeFinder $nodeFinder
      * @param TypeGuard $typeGuard
      */
-    public function __construct(NodeFinder $nodeFinder, TypeGuard $typeGuard)
-    {
-        $this->nodeFinder = $nodeFinder;
-        $this->typeGuard = $typeGuard;
+    public function __construct(
+        private readonly NodeFinder $nodeFinder,
+        private readonly TypeGuard $typeGuard
+    ) {
     }
 
     /**
-     * @param ClassLike $node
-     *
-     * @return Relation[]
+     * @return array<int, Relation>
      * @throws OptionsException
      */
     public function inferRelations(ClassLike $node): array
@@ -85,9 +75,7 @@ class RelationInferrer
     }
 
     /**
-     * @param ClassLike $node
-     *
-     * @return array
+     * @return array<int, Name>
      * @throws OptionsException
      */
     private function getExtensions(ClassLike $node): array
@@ -124,9 +112,7 @@ class RelationInferrer
     }
 
     /**
-     * @param ClassLike $node
-     *
-     * @return array
+     * @return array<int, Name>
      * @throws OptionsException
      */
     private function getImplementations(ClassLike $node): array
@@ -144,8 +130,6 @@ class RelationInferrer
 
     /**
      * Get type names of constructor arguments
-     *
-     * @param Node $node
      *
      * @return Node[] $types
      * @throws OptionsException
@@ -180,10 +164,8 @@ class RelationInferrer
     /**
      * Lookup nodes of multiple types in one finder pass
      *
-     * @param ClassLike $node
-     * @param array $types classnames of nodes to find
-     *
-     * @return Node[] $types
+     * @param array<int, string> $types classnames of nodes to find
+     * @return array<int, Node> $types
      * @throws OptionsException
      */
     private function getTypesFromNodeTypes(ClassLike $node, array $types): array
@@ -195,7 +177,6 @@ class RelationInferrer
         if (!$node instanceof Class_) {
             return $result;
         }
-        /** @var Node[] $nodesOfType */
         $nodesOfType = $this->nodeFinder->find(
             $node,
             function (Node $currentNode) use ($result) {
@@ -214,9 +195,6 @@ class RelationInferrer
     }
 
     /**
-     * @param Node $node
-     *
-     * @return Name|null
      * @throws OptionsException
      */
     private function getNodeTypeName(Node $node): ?Name

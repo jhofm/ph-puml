@@ -5,38 +5,22 @@ declare(strict_types=1);
 namespace Jhofm\PhPuml\Relation;
 
 use Jhofm\PhPuml\NodeParser\ClassLikeRegistry;
+use Jhofm\PhPuml\Options\OptionsException;
 use Jhofm\PhPuml\Options\Options;
 use PhpParser\Node\Name;
 
-/**
- * Class TypeGuard
- */
 class TypeGuard
 {
-    /** @var ClassLikeRegistry */
-    private $classLikeRegistry;
-    /** @var Options */
-    private $options;
-
-    /**
-     * TypeGuard constructor.
-     *
-     * @param ClassLikeRegistry $classLikeRegistry
-     * @param Options $options
-     */
-    public function __construct(ClassLikeRegistry $classLikeRegistry, Options $options)
+    public function __construct(
+        private readonly ClassLikeRegistry $classLikeRegistry,
+        private readonly Options $options)
     {
-        $this->classLikeRegistry = $classLikeRegistry;
-        $this->options = $options;
     }
 
     /**
-     * @param Name $name
-     *
-     * @return bool
-     * @throws \Jhofm\PhPuml\Options\OptionsException
+     * @throws OptionsException
      */
-    public function isTypeIncluded(Name $name)
+    public function isTypeIncluded(Name $name): bool
     {
         if ($this->options->get('include-external-types')) {
             return true;

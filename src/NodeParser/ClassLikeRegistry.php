@@ -8,24 +8,19 @@ use Jhofm\PhPuml\Renderer\TypeRenderer;
 use PhpParser\Node;
 use PhpParser\Node\Stmt\ClassLike;
 
-/**
- * Class ClassLikeRegistry
- */
 class ClassLikeRegistry
 {
-    /** @var array */
+    /** @var array<string, ClassLike> */
     private $classLikes = [];
-    /** @var TypeRenderer  */
-    private $typeRenderer;
 
     /**
      * ClassLikeRegistry constructor.
      *
      * @param TypeRenderer $typeRenderer
      */
-    public function __construct(TypeRenderer $typeRenderer)
-    {
-        $this->typeRenderer = $typeRenderer;
+    public function __construct(
+        private readonly TypeRenderer $typeRenderer
+    ) {
     }
 
     /**
@@ -49,9 +44,6 @@ class ClassLikeRegistry
         return array_key_exists($this->typeRenderer->render($node, true), $this->classLikes);
     }
 
-    /**
-     * @return array
-     */
     public function getClassLikes(): array
     {
         return $this->classLikes;

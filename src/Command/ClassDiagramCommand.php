@@ -16,47 +16,21 @@ use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\Output;
 use Symfony\Component\Console\Output\OutputInterface;
 
-/**
- * Class ClassDiagramCommand
- */
 class ClassDiagramCommand extends Command
 {
     private const ARG_INPUT_PATH = 'input';
     private const ARG_OUTPUT_PATH = 'output';
 
-    /** @var PhPumlService */
-    private $phpumlService;
-    /** @var Options */
-    private $options;
-    /** @var Formatter */
-    private $formatter;
-
-    /**
-     * PumlGenCommand constructor.
-     *
-     * @param PhPumlService $phpumlService
-     * @param Options $options
-     * @param Formatter $formatter
-     * @param string|null $name
-     */
     public function __construct(
-        PhPumlService $phpumlService,
-        Options $options,
-        Formatter $formatter,
+        private readonly PhPumlService $phpumlService,
+        private readonly Options $options,
+        private readonly Formatter $formatter,
         ?string $name = null
     ) {
-        $this->phpumlService = $phpumlService;
-        $this->options = $options;
-        $this->formatter = $formatter;
         parent::__construct($name);
     }
 
-    /**
-     * Command configuration
-     *
-     * @return void
-     */
-    public function configure()
+    public function configure(): void
     {
         $this->setName('ph-puml');
         $this->setDescription('Generates PlantUML class diagrams from PHP code');
@@ -64,7 +38,7 @@ class ClassDiagramCommand extends Command
             self::ARG_INPUT_PATH,
             InputArgument::OPTIONAL,
             'Directory path containing PHP code (absolute or relative)',
-            '.'
+            '/src'
         );
         $this->addArgument(
             self::ARG_OUTPUT_PATH,
@@ -72,10 +46,6 @@ class ClassDiagramCommand extends Command
             'Output path (absolute or relative)',
             'php://stdout'
         );
-        /**
-         * @var string $name
-         * @var OptionInterface $option
-         */
         foreach ($this->options as $name => $option) {
             $mode = InputOption::VALUE_OPTIONAL;
             if ($option->isArray()) {
@@ -86,13 +56,9 @@ class ClassDiagramCommand extends Command
     }
 
     /**
-     * @param InputInterface $input
-     * @param OutputInterface $output
-     *
-     * @return int
      * @throws PhPumlException
      */
-    public function execute(InputInterface $input, OutputInterface $output)
+    public function execute(InputInterface $input, OutputInterface $output): int
     {
         $this->options->setValues($input->getOptions());
         $puml = $this->phpumlService->generatePuml($input->getArgument(self::ARG_INPUT_PATH));

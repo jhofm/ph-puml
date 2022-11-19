@@ -6,22 +6,14 @@ namespace Jhofm\PhPuml\Options;
 
 use Jhofm\PhPuml\Options\OptionConfiguration as Conf;
 
-/**
- * Class Option
- */
 final class Option implements OptionInterface
 {
-    /** @var array */
-    private $config;
-
     /**
-     * Option constructor.
-     *
-     * @param array $config
+     * @param array<string, mixed> $config
      */
-    public function __construct(array $config)
+    public function __construct(
+        private readonly array $config)
     {
-        $this->config = $config;
     }
 
     /** @return bool */

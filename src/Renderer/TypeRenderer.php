@@ -8,23 +8,15 @@ use PhpParser\Node;
 use PhpParser\Node\Name;
 use PhpParser\Node\NullableType;
 
-/**
- * Class TypeRenderer
- */
 class TypeRenderer
 {
     /** @var array */
-    private $aliases = [];
+    private array $aliases = [];
     /** @var array */
-    private $shortNames = [];
+    private array $shortNames = [];
 
     /**
      * Render a type name
-     *
-     * @param Node $type
-     * @param bool $namespaced
-     *
-     * @return string
      */
     public function render(Node $type, bool $namespaced = true): string
     {
@@ -39,10 +31,8 @@ class TypeRenderer
             $type = $type->name;
         }
         if ($type instanceof Name) {
-            /** @var string $type */
             $type = $type->toCodeString();
         } else {
-            /** @var string $type */
             $type = (string) $type;
         }
         // satisfy plantumls craving for backslashes and remove leading backslashes
@@ -58,11 +48,6 @@ class TypeRenderer
         return $type;
     }
 
-    /**
-     * @param Node $node
-     *
-     * @return void
-     */
     public function addTypeName(Node $node): void
     {
         $fqcn = $this->render($node, true);

@@ -16,50 +16,18 @@ use Jhofm\PhPuml\Renderer\PumlRenderer;
 use Jhofm\PhPuml\Renderer\RendererException;
 use PhpParser\NodeFinder;
 
-/**
- * Class PhPumlService
- */
 class PhPumlService
 {
-    /** @var CodeProvider */
-    private $codeProvider;
-    /** @var NodeFinder */
-    /** @var RelationInferrer  */
-    private $relationInferrer;
-    /** @var PumlRenderer  */
-    private $pumlRenderer;
-    /** @var NodeParser */
-    private $nodeParser;
-    /** @var ClassLikeRegistry */
-    private $classLikeRegistry;
-
-    /**
-     * PhPuml constructor.
-     *
-     * @param CodeProvider $codeProvider
-     * @param NodeParser $nodeParser
-     * @param ClassLikeRegistry $classLikeRegistry
-     * @param RelationInferrer $relationInferrer
-     * @param PumlRenderer $pumlRenderer
-     */
     public function __construct(
-        CodeProvider $codeProvider,
-        NodeParser $nodeParser,
-        ClassLikeRegistry $classLikeRegistry,
-        RelationInferrer $relationInferrer,
-        PumlRenderer $pumlRenderer
+        private readonly CodeProvider $codeProvider,
+        private readonly NodeParser $nodeParser,
+        private readonly ClassLikeRegistry $classLikeRegistry,
+        private readonly RelationInferrer $relationInferrer,
+        private readonly PumlRenderer $pumlRenderer
     ) {
-        $this->codeProvider = $codeProvider;
-        $this->nodeParser = $nodeParser;
-        $this->classLikeRegistry = $classLikeRegistry;
-        $this->relationInferrer = $relationInferrer;
-        $this->pumlRenderer = $pumlRenderer;
     }
 
     /**
-     * @param string $input
-     *
-     * @return string
      * @throws PhPumlException
      */
     public function generatePuml(string $input): string
@@ -71,9 +39,6 @@ class PhPumlService
     /**
      * Add classlikes to registry to determine included types and resolve name conflicts of types
      *
-     * @param string $input
-     *
-     * @return void
      * @throws CodeProviderException
      * @throws NodeParserException
      */
@@ -87,7 +52,6 @@ class PhPumlService
     }
 
     /**
-     * @return string
      * @throws OptionsException
      * @throws RendererException
      */

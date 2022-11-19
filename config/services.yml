@@ -30,7 +30,7 @@ services:
       - exclude:
           name-short: e
           is-array: true
-          value: ['~^vendor[\\/]~']
+          value: ['~vendor[\\/]~']
           description: Include regex patterns (at least one must match a file path for it to be parsed).
         include:
           name-short: i

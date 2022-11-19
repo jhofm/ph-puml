@@ -8,15 +8,10 @@ use Jhofm\PhPuml\Options\Options;
 use Jhofm\PhPuml\Options\OptionsException;
 use Jhofm\PhPuml\Relation\Relation;
 
-/**
- * Class RelationRenderer
- */
 class RelationRenderer
 {
     use IndentedRenderTrait;
 
-    /** @var TypeRenderer  */
-    private $typeRenderer;
     /** @var Options  */
     private $options;
 
@@ -25,16 +20,13 @@ class RelationRenderer
      *
      * @param TypeRenderer $typeRenderer
      */
-    public function __construct(TypeRenderer $typeRenderer)
-    {
-        $this->typeRenderer = $typeRenderer;
+    public function __construct(
+        private readonly TypeRenderer $typeRenderer
+    ) {
     }
 
     /**
-     * @param array $relations
-     * @param Options $options
-     *
-     * @return string
+     * @param array<int, Relation> $relations
      * @throws RendererException
      */
     public function renderRelations(array $relations, Options $options): string
@@ -51,9 +43,6 @@ class RelationRenderer
     }
 
     /**
-     * @param Relation $relation
-     *
-     * @return string
      * @throws RendererException
      */
     public function render(Relation $relation): string
@@ -72,13 +61,6 @@ class RelationRenderer
              );
     }
 
-    /**
-     * @param Relation $relation
-     * @param int|null $sourceQuantifier
-     * @param int|null $targetQuantifier
-     *
-     * @return string
-     */
     private function renderRelationType(Relation $relation, ?int $sourceQuantifier, ?int $targetQuantifier): string
     {
         $arrow = '>';
@@ -90,7 +72,6 @@ class RelationRenderer
             $line = '--';
         } elseif ($relation->getRelationType() === Relation::RELATION_TYPE_IMPLEMENTATION) {
             $arrow = '|>';
-            $line = '..';
         }
         return ' '
             . $this->renderQuantifier($sourceQuantifier)
@@ -99,11 +80,6 @@ class RelationRenderer
             . ' ';
     }
 
-    /**
-     * @param int|null $sourceQuantifier
-     *
-     * @return string
-     */
     private function renderQuantifier(?int $sourceQuantifier): string
     {
         if ($sourceQuantifier === null) {

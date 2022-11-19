@@ -10,30 +10,14 @@ use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Exception\ProcessTimedOutException;
 use Symfony\Component\Process\Process;
 
-/**
- * Class PlantUmlFormatterStrategy
- */
 class PlantUmlFormatterStrategy implements FormatterInterface
 {
-    /** @var Options */
-    private $options;
-    /** @var string */
-    private $rootDir;
-
-    /**
-     * PlantUmlFormatterStrategy constructor.
-     *
-     * @param Options $options
-     */
-    public function __construct(Options $options)
-    {
-        $this->options = $options;
+    public function __construct(
+        private readonly Options $options
+    ) {
     }
 
     /**
-     * @param string $puml
-     *
-     * @return string
      * @throws FormatterException
      */
     public function format(string $puml): string
@@ -52,10 +36,6 @@ class PlantUmlFormatterStrategy implements FormatterInterface
 
     /**
      * Get plantuml.jar cli parameter for an output format
-     *
-     * @param $format
-     *
-     * @return string
      */
     private function getPlantUmlParameterForFormat(string $format): string
     {
@@ -64,8 +44,6 @@ class PlantUmlFormatterStrategy implements FormatterInterface
 
     /**
      * @throws FormatterException
-     *
-     * @return string
      */
     private function getPlantUmlJarPath(): string
     {

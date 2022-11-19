@@ -9,42 +9,21 @@ use Jhofm\PhPuml\Options\OptionsException;
 use Jhofm\PhPuml\Relation\Relation;
 use PhpParser\Node\Stmt\ClassLike;
 
-/**
- * Class PumlRenderer
- */
 class PumlRenderer
 {
     /** @var string */
     private $buffer = '';
-    /** @var ClassLikeRenderer  */
-    private $classLikeRenderer;
-    /** @var RelationRenderer  */
-    private $relationRenderer;
-    /** @var Options */
-    private $options;
 
-    /**
-     * PumlRenderer constructor.
-     *
-     * @param ClassLikeRenderer $classLikeRenderer
-     * @param RelationRenderer $relationRenderer
-     * @param Options $options
-     */
     public function __construct(
-        ClassLikeRenderer $classLikeRenderer,
-        RelationRenderer $relationRenderer,
-        Options $options
+        private readonly ClassLikeRenderer $classLikeRenderer,
+        private readonly RelationRenderer $relationRenderer,
+        private readonly Options $options
     ) {
-        $this->classLikeRenderer = $classLikeRenderer;
-        $this->relationRenderer = $relationRenderer;
-        $this->options = $options;
     }
 
     /**
      * @param ClassLike $classLike
-     *
      * @throws RendererException
-     * @return void
      */
     public function renderClassLike(ClassLike $classLike): void
     {
@@ -53,9 +32,7 @@ class PumlRenderer
 
     /**
      * @param Relation[] $relations
-     *
      * @throws RendererException
-     * @return void
      */
     public function renderRelations(array $relations): void
     {

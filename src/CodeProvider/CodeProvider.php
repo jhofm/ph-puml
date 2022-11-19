@@ -12,31 +12,18 @@ use League\Flysystem\Local\LocalFilesystemAdapter;
 use League\Flysystem\StorageAttributes;
 use Traversable;
 
-/**
- * Class CodeProvider
- */
 class CodeProvider
 {
     private const RESULT_KEY_PATH = 'path';
     private const RESULT_KEY_CONTENT = 'content';
 
-    /** @var Options */
-    private $options;
-
-    /**
-     * CodeProvider constructor.
-     *
-     * @param Options $options
-     */
-    public function __construct(Options $options)
-    {
-        $this->options = $options;
+    public function __construct(
+        private readonly Options $options
+    ) {
     }
 
     /**
-     * @param string $directory
-     *
-     * @return Generator
+     * @return Generator<string, string>
      * @throws CodeProviderException
      */
     public function getCode(string $directory): Generator
@@ -61,9 +48,6 @@ class CodeProvider
     }
 
     /**
-     * @param string $directory
-     *
-     * @return Traversable
      * @throws FilesystemException
      */
     private function getIterator(string $directory): Traversable
@@ -73,7 +57,7 @@ class CodeProvider
                 $directory,
                 null,
                 LOCK_EX,
-                LocalFilesystemAdapter::DISALLOW_LINKS
+                LocalFilesystemAdapter::SKIP_LINKS
             )
         );
         return $fs->listContents('.', true)
