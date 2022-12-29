@@ -11,9 +11,6 @@ use ProjectServiceContainer;
 use Symfony\Component\Console\Application;
 use Symfony\Component\DependencyInjection\Exception\ServiceNotFoundException;
 
-/**
- * Class ContainerTest
- */
 class ContainerTest extends TestCase
 {
     /** @var ProjectServiceContainer */

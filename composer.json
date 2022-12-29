@@ -11,25 +11,22 @@
     ],
     "bin": ["bin/ph-puml"],
     "require-dev": {
+        "mockery/mockery": "^1.5.1",
         "phpunit/phpunit": "^9.5",
-        "squizlabs/php_codesniffer": "^3.5"
+        "squizlabs/php_codesniffer": "^3.7.1"
     },
     "require": {
-        "php": "^7.4",
+        "php": "^8.2",
         "composer-plugin-api": "^2.0",
         "ext-json": "*",
-        "symfony/console": "^5.2",
-        "nikic/php-parser": "^4.10",
-        "symfony/dependency-injection": "^5.2",
-        "symfony/process": "^5.2",
+        "symfony/console": "^6.2.2",
+        "nikic/php-parser": "^4.15.2",
+        "symfony/dependency-injection": "^6.2.3",
+        "symfony/process": "^6.2.0",
         "symfony/finder": "^5.2",
-        "league/flysystem": "^2.0",
-        "symfony/config": "^5.2",
-        "symfony/yaml": "^5.2",
-        "mockery/mockery": "^1.4"
-    },
-    "suggest": {
-        "jawira/plantuml": "For generating output using PlantUML"
+        "symfony/config": "^6.2.0",
+        "symfony/yaml": "^6.2.2",
+        "jawira/plantuml": "^v1.2022.14"
     },
     "autoload": {
         "psr-4": {

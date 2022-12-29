@@ -8,5 +8,4 @@ use Jhofm\PhPuml\PhPumlException;
 
 class NodeParserException extends PhPumlException
 {
-
 }

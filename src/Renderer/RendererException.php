@@ -6,9 +6,6 @@ namespace Jhofm\PhPuml\Renderer;
 
 use Jhofm\PhPuml\PhPumlException;
 
-/**
- * Class RendererException
- */
 class RendererException extends PhPumlException
 {
 

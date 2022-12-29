@@ -16,78 +16,42 @@ use Jhofm\PhPuml\Renderer\PumlRenderer;
 use Jhofm\PhPuml\Renderer\RendererException;
 use PhpParser\NodeFinder;
 
-/**
- * Class PhPumlService
- */
 class PhPumlService
 {
-    /** @var CodeProvider */
-    private $codeProvider;
-    /** @var NodeFinder */
-    /** @var RelationInferrer  */
-    private $relationInferrer;
-    /** @var PumlRenderer  */
-    private $pumlRenderer;
-    /** @var NodeParser */
-    private $nodeParser;
-    /** @var ClassLikeRegistry */
-    private $classLikeRegistry;
-
-    /**
-     * PhPuml constructor.
-     *
-     * @param CodeProvider $codeProvider
-     * @param NodeParser $nodeParser
-     * @param ClassLikeRegistry $classLikeRegistry
-     * @param RelationInferrer $relationInferrer
-     * @param PumlRenderer $pumlRenderer
-     */
     public function __construct(
-        CodeProvider $codeProvider,
-        NodeParser $nodeParser,
-        ClassLikeRegistry $classLikeRegistry,
-        RelationInferrer $relationInferrer,
-        PumlRenderer $pumlRenderer
+        private readonly CodeProvider $codeProvider,
+        private readonly NodeParser $nodeParser,
+        private readonly ClassLikeRegistry $classLikeRegistry,
+        private readonly RelationInferrer $relationInferrer,
+        private readonly PumlRenderer $pumlRenderer
     ) {
-        $this->codeProvider = $codeProvider;
-        $this->nodeParser = $nodeParser;
-        $this->classLikeRegistry = $classLikeRegistry;
-        $this->relationInferrer = $relationInferrer;
-        $this->pumlRenderer = $pumlRenderer;
     }
 
     /**
-     * @param string $input
-     *
-     * @return string
      * @throws PhPumlException
      */
-    public function generatePuml(string $input): string
+    public function generatePuml(string $directory): string
     {
-        $this->addClassLikesToRegistry($input);
+        $this->addClassLikesToRegistry($directory);
         return $this->render();
     }
 
     /**
      * Add classlikes to registry to determine included types and resolve name conflicts of types
      *
-     * @param string $input
-     *
-     * @return void
      * @throws CodeProviderException
      * @throws NodeParserException
      */
-    private function addClassLikesToRegistry(string $input): void
+    private function addClassLikesToRegistry(string $directory): void
     {
-        foreach ($this->codeProvider->getCode($input) as $path => $code) {
-            foreach ($this->nodeParser->getClassLikes($path, $code) as $classLike) {
+        foreach ($this->codeProvider->getCode($directory) as $path => $file) {
+            foreach ($this->nodeParser->getClassLikes($path, $file->getContents()) as $classLike) {
                 $this->classLikeRegistry->addClassLike($classLike);
             }
         }
     }
 
     /**
-     * @return string
      * @throws OptionsException
      * @throws RendererException
      */

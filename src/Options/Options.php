@@ -4,23 +4,20 @@ declare(strict_types=1);
 
 namespace Jhofm\PhPuml\Options;
 
-use Generator;
 use IteratorAggregate;
 use JsonSerializable;
 use Jhofm\PhPuml\Options\OptionConfiguration as Conf;
+use Traversable;
 
-/**
- * Class Options
- */
 final class Options implements JsonSerializable, IteratorAggregate
 {
-    /** @var array $options */
-    private $options;
+    /** @var array<string, mixed> $options */
+    private array $options;
 
     /**
      * Options constructor.
      *
-     * @param array $options
+     * @param array<string, mixed> $options
      *
      * @throws OptionsException
      */
@@ -31,10 +28,9 @@ final class Options implements JsonSerializable, IteratorAggregate
     }
 
     /**
-     * @param array $options
+     * @param array<string, mixed> $options
      *
      * @throws OptionsException
-     * @return void
      */
     private function validateConfig(array $options): void
     {
@@ -70,17 +66,13 @@ final class Options implements JsonSerializable, IteratorAggregate
             throw new OptionsException(sprintf('Flag "%s" is not valid for option "%s".', $char, $name));
         }
         $value = $this->get($name);
-        return $value === null
-            ? false
-            : strpos($value, $char) !== false;
+        return !($value === null) && strpos($value, $char) !== false;
     }
 
     /**
      * {@inheritdoc}
-     *
-     * @return Generator
      */
-    public function getIterator()
+    public function getIterator(): Traversable
     {
         foreach ($this->options as $name => $option) {
             $option[Conf::KEY_NAME] = $name;
@@ -153,14 +145,13 @@ final class Options implements JsonSerializable, IteratorAggregate
 
     /**
      * @param string $name
-     * @param $value
+     * @param mixed $value
      *
-     * @return Options
      * @throws OptionsException
      */
-    public function __set(string $name, $value): self
+    public function __set(string $name, $value): void
     {
-        return $this->set($name, $value);
+        $this->set($name, $value);
     }
 
     /**
@@ -179,22 +170,16 @@ final class Options implements JsonSerializable, IteratorAggregate
 
     /**
      * [@inheritdoc}
-     *
-     * @return array
      */
-    public function jsonSerialize()
+    public function jsonSerialize(): mixed
     {
         return $this->options;
     }
 
     /**
-     * @param string $name
-     * @param null $value
-     *
      * @throws OptionsException
-     * @return void
      */
-    private function validate(string $name, $value = null): void
+    private function validate(string $name, mixed $value = null): void
     {
         if (!$this->has($name)) {
             throw new OptionsException(sprintf('Unknown option "%s".', $name));

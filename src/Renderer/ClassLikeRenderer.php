@@ -19,9 +19,6 @@ use PhpParser\Node\Stmt\Property;
 use PhpParser\Node\Stmt\Trait_;
 use PhpParser\Node\VarLikeIdentifier;
 
-/**
- * Class ClassLikeRenderer
- */
 class ClassLikeRenderer
 {
     use IndentedRenderTrait;
@@ -32,28 +29,17 @@ class ClassLikeRenderer
         Interface_::class => 'interface',
         Trait_::class => 'class'
     ];
-    /** @var TypeRenderer  */
-    private $typeRenderer;
     /** @var Options  */
     private $options;
 
-    /**
-     * ClassLikeRenderer constructor.
-     *
-     * @param TypeRenderer $typeRenderer
-     */
-    public function __construct(TypeRenderer $typeRenderer)
+    public function __construct(
+        private readonly TypeRenderer $typeRenderer)
     {
-        $this->typeRenderer = $typeRenderer;
     }
 
     /**
      * Render a ClassLike Node as PlantUML
      *
-     * @param ClassLike $node
-     * @param Options $options
-     *
-     * @return string
      * @throws RendererException
      */
     public function render(ClassLike $node, Options $options): string
@@ -72,9 +58,6 @@ class ClassLikeRenderer
     }
 
     /**
-     * @param ClassLike $node
-     *
-     * @return string
      * @throws RendererException
      */
     private function renderClassLikeHeader(ClassLike $node): string
@@ -97,9 +80,6 @@ class ClassLikeRenderer
     }
 
     /**
-     * @param ClassLike $node
-     *
-     * @return string
      * @throws RendererException
      */
     private function renderProperties(ClassLike $node): string
@@ -117,9 +97,6 @@ class ClassLikeRenderer
     }
 
     /**
-     * @param Property $property
-     *
-     * @return string
      * @throws RendererException
      */
     private function renderProperty(Property $property): string
@@ -158,9 +135,6 @@ class ClassLikeRenderer
     }
 
     /**
-     * @param ClassLike $node
-     *
-     * @return string
      * @throws RendererException
      */
     private function renderMethods(ClassLike $node): string
@@ -175,11 +149,6 @@ class ClassLikeRenderer
 
     /**
      * Render a method signature
-     *
-     * @param ClassMethod $method
-     * @param ClassLike $classLike
-     *
-     * @return string
      * @throws RendererException
      */
     private function renderMethod(ClassMethod $method, ClassLike $classLike): string
@@ -231,10 +200,6 @@ class ClassLikeRenderer
 
     /**
      * Render method/property visibility
-     *
-     * @param Stmt $node
-     *
-     * @return string
      * @throws RendererException
      */
     private function renderVisibility(Stmt $node): string
@@ -256,9 +221,6 @@ class ClassLikeRenderer
     }
 
     /**
-     * @param string $flag
-     *
-     * @return bool
      * @throws RendererException
      */
     private function renderNamepaceForFlag(string $flag): bool

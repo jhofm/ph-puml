@@ -10,37 +10,17 @@ use PhpParser\NodeFinder;
 use PhpParser\NodeTraverser;
 use PhpParser\Parser as PhpParser;
 
-/**
- * Class NodeParser
- */
 class NodeParser
 {
-    /** @var PhpParser  */
-    private $phpParser;
-    /** @var NodeFinder  */
-    private $nodeFinder;
-    /** @var NodeTraverser */
-    private $namespaceTraverser;
-
-    /**
-     * NodeParser constructor.
-     *
-     * @param PhpParser $phpParser
-     * @param NodeFinder $nodeFinder
-     * @param NodeTraverser $namespaceTraverser
-     */
-    public function __construct(PhpParser $phpParser, NodeFinder $nodeFinder, NodeTraverser $namespaceTraverser)
-    {
-        $this->phpParser = $phpParser;
-        $this->nodeFinder = $nodeFinder;
-        $this->namespaceTraverser = $namespaceTraverser;
+    public function __construct(
+        private readonly PhpParser $phpParser,
+        private readonly NodeFinder $nodeFinder,
+        private readonly NodeTraverser $namespaceTraverser
+    ) {
     }
 
     /**
-     * @param string $path
-     * @param string $code
-     *
-     * @return Node[]
+     * @return array<int, ClassLike>
      * @throws NodeParserException
      */
     public function getClassLikes(string $path, string $code): array

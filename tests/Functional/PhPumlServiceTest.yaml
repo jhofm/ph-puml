@@ -1,0 +1,38 @@
+dependency-php5:
+  - Fixtures/DepPhp5
+  - |+2
+    @startuml
+    
+    set namespaceSeparator \\
+  
+    class Jhofm\\PhPuml\\Test\\Functional\\Fixtures\\DepPhp5\\Foo {
+      -bar:mixed
+      
+      +<<create>> Foo (bar:Bar)
+    }
+    
+    Jhofm\\PhPuml\\Test\\Functional\\Fixtures\\DepPhp5\\Foo --> Jhofm\\PhPuml\\Test\\Functional\\Fixtures\\DepPhp5\\Bar
+    
+    class Jhofm\\PhPuml\\Test\\Functional\\Fixtures\\DepPhp5\\Bar {
+    }
+    
+    
+    @enduml
+dependency-php8:
+  - Fixtures/DepPhp8
+  - |+2
+    @startuml
+
+    set namespaceSeparator \\
+
+    class Jhofm\\PhPuml\\Test\\Functional\\Fixtures\\DepPhp8\\Foo {
+      +<<create>> Foo (bar:Bar)
+    }
+
+    Jhofm\\PhPuml\\Test\\Functional\\Fixtures\\DepPhp8\\Foo --> Jhofm\\PhPuml\\Test\\Functional\\Fixtures\\DepPhp8\\Bar
+
+    class Jhofm\\PhPuml\\Test\\Functional\\Fixtures\\DepPhp8\\Bar {
+    }
+
+
+    @enduml

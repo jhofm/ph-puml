@@ -7,34 +7,17 @@ namespace Jhofm\PhPuml\Formatter;
 use Jhofm\PhPuml\Options\Options;
 use Jhofm\PhPuml\Options\OptionsException;
 
-/**
- * Class Formatter
- */
 class Formatter implements FormatterInterface
 {
-    /** @var FormatterInterface[] */
-    private $formatters;
-    /** @var Options */
-    private $options;
-
     /**
-     * Formatter constructor.
-     *
-     * @param Options $options
-     * @param FormatterInterface[] $formatters
+     * @param iterable<FormatterInterface> $formatters
      */
-    public function __construct(Options $options, $formatters)
-    {
-        $this->options = $options;
-        $this->formatters = $formatters;
+    public function __construct(
+        private readonly Options $options,
+        private readonly iterable $formatters
+    ) {
     }
 
-    /**
-     * @param string|null $puml
-     *
-     * @return string
-     * @throws FormatterException
-     */
     public function format(?string $puml): string
     {
         if ($puml === null) {
@@ -51,9 +34,6 @@ class Formatter implements FormatterInterface
     }
 
     /**
-     * @param string $format
-     *
-     * @return FormatterInterface
      * @throws FormatterException
      */
     private function getFormatterByFormat(string $format): FormatterInterface
@@ -64,9 +44,6 @@ class Formatter implements FormatterInterface
     }
 
     /**
-     * @param string $class
-     *
-     * @return FormatterInterface
      * @throws FormatterException
      */
     private function getFormatterByClassname(string $class): FormatterInterface

@@ -1,0 +1,18 @@
+version: '3'
+services:
+  ph-puml:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: jhofm/ph-puml
+    restart: "no"
+  ph-puml-dev:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    volumes:
+      - .:/app
+    working_dir: /app
+    entrypoint: bin/ph-puml
+    image: jhofm/ph-puml-dev
+    restart: "no"
