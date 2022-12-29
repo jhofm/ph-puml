@@ -26,7 +26,8 @@ services:
 
   Jhofm\PhPuml\:
     resource: '../src/*'
-
+  Jhofm\PhPuml\Service\PhPumlService:
+    public: true
   Jhofm\PhPuml\Options\Options:
     arguments:
       - exclude:

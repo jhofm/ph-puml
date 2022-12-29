@@ -30,9 +30,9 @@ class PhPumlService
     /**
      * @throws PhPumlException
      */
-    public function generatePuml(string $input): string
+    public function generatePuml(string $directory): string
     {
-        $this->addClassLikesToRegistry($input);
+        $this->addClassLikesToRegistry($directory);
         return $this->render();
     }
 
@@ -42,9 +42,9 @@ class PhPumlService
      * @throws CodeProviderException
      * @throws NodeParserException
      */
-    private function addClassLikesToRegistry(string $input): void
+    private function addClassLikesToRegistry(string $directory): void
     {
-        foreach ($this->codeProvider->getCode($input) as $path => $file) {
+        foreach ($this->codeProvider->getCode($directory) as $path => $file) {
             foreach ($this->nodeParser->getClassLikes($path, $file->getContents()) as $classLike) {
                 $this->classLikeRegistry->addClassLike($classLike);
             }

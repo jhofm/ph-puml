@@ -18,6 +18,6 @@ ENV PHP_IDE_CONFIG="serverName=ph-puml"
 COPY . /app
 WORKDIR /app
 # install composer dependencies
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+COPY --from=composer:latest /usr/bin/composer /usr/local/bin/composer
 RUN composer install --no-dev
 ENTRYPOINT ["./bin/ph-puml"]

@@ -53,7 +53,7 @@ class TypeRenderer
         $fqcn = $this->render($node, true);
         $short = $this->render($node, false);
         if (array_key_exists($short, $this->shortNames)) {
-            //TODO: more sparingly build aliases
+            //TODO: create shorter aliases
             $short = $fqcn;
         }
         $this->shortNames[$short] = true;
