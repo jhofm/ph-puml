@@ -44,8 +44,8 @@ class PhPumlService
      */
     private function addClassLikesToRegistry(string $input): void
     {
-        foreach ($this->codeProvider->getCode($input) as $path => $code) {
-            foreach ($this->nodeParser->getClassLikes($path, $code) as $classLike) {
+        foreach ($this->codeProvider->getCode($input) as $path => $file) {
+            foreach ($this->nodeParser->getClassLikes($path, $file->getContents()) as $classLike) {
                 $this->classLikeRegistry->addClassLike($classLike);
             }
         }

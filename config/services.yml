@@ -12,6 +12,8 @@ services:
     calls:
       - addCommands: [['@Jhofm\PhPuml\Command\ClassDiagramCommand']]
 
+  Symfony\Component\Finder\Finder:
+
   PhpParser\Parser:
     factory: ['@PhpParser\ParserFactory', 'create']
     arguments:
